@@ -4,85 +4,105 @@
 /* Default REPR function handlers. */
 GCC_DIAG_OFF(return-type)
 static MVMuint64 default_elems(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data) {
+    (void)root, (void)data;
     MVM_exception_throw_adhoc(tc,
         "This representation (%s) does not support elems",
         MVM_string_utf8_encode_C_string(tc, st->REPR->name));
 }
 GCC_DIAG_ON(return-type)
-MVM_NO_RETURN
+MVM_NO_RETURN static void die_no_attrs(MVMThreadContext *tc, MVMString *repr_name) MVM_NO_RETURN_GCC;
 static void die_no_attrs(MVMThreadContext *tc, MVMString *repr_name) {
     MVM_exception_throw_adhoc(tc,
         "This representation (%s) does not support attribute storage", MVM_string_utf8_encode_C_string(tc, repr_name));
 }
 static void default_get_attribute(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *class_handle, MVMString *name, MVMint64 hint, MVMRegister *result, MVMuint16 kind) {
+    (void)root, (void)data, (void)class_handle, (void)name, (void)hint, (void)result, (void)kind;
     die_no_attrs(tc, st->REPR->name);
 }
 static void default_bind_attribute(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *class_handle, MVMString *name, MVMint64 hint, MVMRegister value, MVMuint16 kind) {
+    (void)root, (void)data, (void)class_handle, (void)name, (void)hint, (void)value, (void)kind;
     die_no_attrs(tc, st->REPR->name);
 }
 GCC_DIAG_OFF(return-type)
 static MVMint64 default_is_attribute_initialized(MVMThreadContext *tc, MVMSTable *st, void *data, MVMObject *class_handle, MVMString *name, MVMint64 hint) {
+    (void)data, (void)class_handle, (void)name, (void)hint;
     die_no_attrs(tc, st->REPR->name);
 }
 GCC_DIAG_ON(return-type)
 static MVMint64 default_hint_for(MVMThreadContext *tc, MVMSTable *st, MVMObject *class_handle, MVMString *name) {
+    (void)tc, (void)st, (void)class_handle, (void)name;
     return MVM_NO_HINT;
 }
 static void default_set_int(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMint64 value) {
+    (void)root, (void)data, (void)value;
     MVM_exception_throw_adhoc(tc,
         "This representation (%s) cannot box a native int", MVM_string_utf8_encode_C_string(tc, st->REPR->name));
 }
 static MVMint64 default_get_int(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data) {
+    (void)root, (void)data;
     MVM_exception_throw_adhoc(tc,
         "This representation (%s) cannot unbox to a native int", MVM_string_utf8_encode_C_string(tc, st->REPR->name));
 }
 static void default_set_num(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMnum64 value) {
+    (void)root, (void)data, (void)value;
     MVM_exception_throw_adhoc(tc,
         "This representation (%s) cannot box a native num", MVM_string_utf8_encode_C_string(tc, st->REPR->name));
 }
 static MVMnum64 default_get_num(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data) {
+    (void)root, (void)data;
     MVM_exception_throw_adhoc(tc,
         "This representation (%s) cannot unbox to a native num", MVM_string_utf8_encode_C_string(tc, st->REPR->name));
 }
 static void default_set_str(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMString *value) {
+    (void)root, (void)data, (void)value;
     MVM_exception_throw_adhoc(tc,
         "This representation (%s) cannot box a native string", MVM_string_utf8_encode_C_string(tc, st->REPR->name));
 }
 static MVMString * default_get_str(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data) {
+    (void)root, (void)data;
     MVM_exception_throw_adhoc(tc,
         "This representation (%s) cannot unbox to a native string", MVM_string_utf8_encode_C_string(tc, st->REPR->name));
 }
 static void * default_get_boxed_ref(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMuint32 repr_id) {
+    (void)root, (void)data, (void)repr_id;
     MVM_exception_throw_adhoc(tc,
         "This representation (%s) cannot unbox to other types", MVM_string_utf8_encode_C_string(tc, st->REPR->name));
 }
-MVM_NO_RETURN
+MVM_NO_RETURN static void die_no_pos(MVMThreadContext *tc, MVMString *repr_name) MVM_NO_RETURN_GCC;
 static void die_no_pos(MVMThreadContext *tc, MVMString *repr_name) {
     MVM_exception_throw_adhoc(tc,
         "This representation (%s) does not support positional access", MVM_string_utf8_encode_C_string(tc, repr_name));
 }
 static void default_at_pos(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMint64 index, MVMRegister *value, MVMuint16 kind) {
+    (void)root, (void)data, (void)index, (void)value, (void)kind;
     die_no_pos(tc, st->REPR->name);
 }
 static void default_bind_pos(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMint64 index, MVMRegister value, MVMuint16 kind) {
+    (void)root, (void)data, (void)index, (void)value, (void)kind;
     die_no_pos(tc, st->REPR->name);
 }
 static void default_set_elems(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMuint64 count) {
+    (void)root, (void)data, (void)count;
     die_no_pos(tc, st->REPR->name);
 }
 static MVMint64 default_exists_pos(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMint64 index) {
+    (void)root, (void)data, (void)index;
     die_no_pos(tc, st->REPR->name);
 }
 static void default_push(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMRegister value, MVMuint16 kind) {
+    (void)root, (void)data, (void)value, (void)kind;
     die_no_pos(tc, st->REPR->name);
 }
 static void default_pop(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMRegister *value, MVMuint16 kind) {
+    (void)root, (void)data, (void)value, (void)kind;
     die_no_pos(tc, st->REPR->name);
 }
 static void default_unshift(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMRegister value, MVMuint16 kind) {
+    (void)root, (void)data, (void)value, (void)kind;
     die_no_pos(tc, st->REPR->name);
 }
 static void default_shift(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMRegister *value, MVMuint16 kind) {
+    (void)root, (void)data, (void)value, (void)kind;
     die_no_pos(tc, st->REPR->name);
 }
 GCC_DIAG_OFF(return-type)
@@ -91,37 +111,41 @@ static MVMStorageSpec default_get_elem_storage_spec(MVMThreadContext *tc, MVMSTa
 }
 GCC_DIAG_ON(return-type)
 static void default_splice(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *target_array, MVMint64 offset, MVMuint64 elems) {
+    (void)root, (void)data, (void)target_array, (void)offset, (void)elems;
     die_no_pos(tc, st->REPR->name);
 }
-MVM_NO_RETURN
+MVM_NO_RETURN static void die_no_ass(MVMThreadContext *tc, MVMString *repr_name) MVM_NO_RETURN_GCC;
 static void die_no_ass(MVMThreadContext *tc, MVMString *repr_name) {
     MVM_exception_throw_adhoc(tc,
         "This representation (%s) does not support associative access", MVM_string_utf8_encode_C_string(tc, repr_name));
 }
 GCC_DIAG_OFF(return-type)
-void * default_at_key_ref(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *key) {
+static void * default_at_key_ref(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *key) {
+    (void)root, (void)data, (void)key;
     die_no_ass(tc, st->REPR->name);
 }
-MVMObject * default_at_key_boxed(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *key) {
-    die_no_ass(tc, st->REPR->name);
-}
-GCC_DIAG_ON(return-type)
-void default_bind_key_ref(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *key, void *value_addr) {
-    die_no_ass(tc, st->REPR->name);
-}
-void default_bind_key_boxed(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *key, MVMObject *value) {
-    die_no_ass(tc, st->REPR->name);
-}
-GCC_DIAG_OFF(return-type)
-MVMuint64 default_exists_key(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *key) {
+static MVMObject * default_at_key_boxed(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *key) {
+    (void)root, (void)data, (void)key;
     die_no_ass(tc, st->REPR->name);
 }
 GCC_DIAG_ON(return-type)
-void default_delete_key(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *key) {
+static void default_bind_key_ref(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *key, void *value_addr) {
+    die_no_ass(tc, st->REPR->name);
+}
+static void default_bind_key_boxed(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *key, MVMObject *value) {
+    (void)root, (void)data, (void)key, (void)value;
     die_no_ass(tc, st->REPR->name);
 }
 GCC_DIAG_OFF(return-type)
-MVMStorageSpec default_get_value_storage_spec(MVMThreadContext *tc, MVMSTable *st) {
+static MVMint64 default_exists_key(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *key) {
+    die_no_ass(tc, st->REPR->name);
+}
+GCC_DIAG_ON(return-type)
+static void default_delete_key(MVMThreadContext *tc, MVMSTable *st, MVMObject *root, void *data, MVMObject *key) {
+    die_no_ass(tc, st->REPR->name);
+}
+GCC_DIAG_OFF(return-type)
+static MVMStorageSpec default_get_value_storage_spec(MVMThreadContext *tc, MVMSTable *st) {
     die_no_ass(tc, st->REPR->name);
 }
 GCC_DIAG_ON(return-type)

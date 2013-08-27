@@ -138,15 +138,15 @@ static void * base64_decode(const char *s, size_t *data_len)
 	    if (n[2] == -1 && n[3] != -1)
 		return NULL;
 
-            q[0] = (n[0] << 2) + (n[1] >> 4);
+            q[0] = (unsigned char)((n[0] << 2) + (n[1] >> 4));
 	    if (n[2] != -1)
-                q[1] = ((n[1] & 15) << 4) + (n[2] >> 2);
+                q[1] = (unsigned char)(((n[1] & 15) << 4) + (n[2] >> 2));
 	    if (n[3] != -1)
-                q[2] = ((n[2] & 3) << 6) + n[3];
+                q[2] = (unsigned char)(((n[2] & 3) << 6) + n[3]);
 	    q += 3;
 	}
 
-	*data_len = q-data - (n[2]==-1) - (n[3]==-1);
+	*data_len = (size_t)(q - data) - (n[2]==-1) - (n[3]==-1);
 
 	return data;
 }
@@ -216,7 +216,7 @@ static void fail_deserialize(MVMThreadContext *tc, MVMSerializationReader *reade
 }
 
 /* Reads the item from the string heap at the specified index. */
-static MVMString * read_string_from_heap(MVMThreadContext *tc, MVMSerializationReader *reader, MVMint32 idx) {
+static MVMString * read_string_from_heap(MVMThreadContext *tc, MVMSerializationReader *reader, MVMuint32 idx) {
     if (idx < MVM_repr_elems(tc, reader->root.string_heap))
         return MVM_repr_at_pos_s(tc, reader->root.string_heap, idx);
     else
@@ -768,14 +768,14 @@ static void deserialize_stable(MVMThreadContext *tc, MVMSerializationReader *rea
 
     /* Method cache and v-table. */
     MVM_ASSIGN_REF(tc, st, st->method_cache, read_ref_func(tc, reader));
-    st->vtable_length = read_int_func(tc, reader);
+    st->vtable_length = (MVMuint16)read_int_func(tc, reader);
     if (st->vtable_length > 0)
         st->vtable = (MVMObject **)malloc(st->vtable_length * sizeof(MVMObject *));
     for (i = 0; i < st->vtable_length; i++)
         MVM_ASSIGN_REF(tc, st, st->vtable[i], read_ref_func(tc, reader));
 
     /* Type check cache. */
-    st->type_check_cache_length = read_int_func(tc, reader);
+    st->type_check_cache_length = (MVMuint16)read_int_func(tc, reader);
     if (st->type_check_cache_length > 0) {
         st->type_check_cache = (MVMObject **)malloc(st->type_check_cache_length * sizeof(MVMObject *));
         for (i = 0; i < st->type_check_cache_length; i++)
@@ -783,12 +783,12 @@ static void deserialize_stable(MVMThreadContext *tc, MVMSerializationReader *rea
     }
 
     /* Mode flags. */
-    st->mode_flags = read_int_func(tc, reader);
+    st->mode_flags = (MVMuint16)read_int_func(tc, reader);
 
     /* Boolification spec. */
     if (read_int_func(tc, reader)) {
         st->boolification_spec = (MVMBoolificationSpec *)malloc(sizeof(MVMBoolificationSpec));
-        st->boolification_spec->mode = read_int_func(tc, reader);
+        st->boolification_spec->mode = (MVMuint32)read_int_func(tc, reader);
         MVM_ASSIGN_REF(tc, st, st->boolification_spec->method, read_ref_func(tc, reader));
     }
 
@@ -836,6 +836,8 @@ void MVM_serialization_deserialize(MVMThreadContext *tc, MVMSerializationContext
         MVMObject *string_heap, MVMObject *codes_static,
         MVMObject *repo_conflicts, MVMString *data) {
     MVMint32 scodes, i;
+
+    (void)repo_conflicts; /* FIXME? */
 
     /* Allocate and set up reader. */
     MVMSerializationReader *reader = calloc(1, sizeof(MVMSerializationReader));
@@ -941,6 +943,6 @@ MVMString * MVM_sha1(MVMThreadContext *tc, MVMString *str) {
 }
 
 MVMString * MVM_serialization_serialize(MVMThreadContext *tc, MVMSerializationContext *sc, MVMObject *obj) {
-    
+    (void)tc, (void)sc, (void)obj;
     return NULL;
 }
