@@ -376,6 +376,8 @@ our %OS_LINUX = (
 our %OS_OPENBSD = (
     %OS_POSIX,
 
+    syslibs => [ @{$OS_POSIX{syslibs}}, qw( kvm ) ],
+
     -thirdparty => {
         uv => { %TP_UVDUMMY, objects => '$(UV_OPENBSD)' },
     },
@@ -384,6 +386,8 @@ our %OS_OPENBSD = (
 our %OS_NETBSD = (
     %OS_POSIX,
 
+    syslibs => [ @{$OS_POSIX{syslibs}}, qw( kvm ) ],
+
     -thirdparty => {
         uv => { %TP_UVDUMMY, objects => '$(UV_NETBSD)' },
     },
@@ -391,6 +395,8 @@ our %OS_NETBSD = (
 
 our %OS_FREEBSD = (
     %OS_POSIX,
+
+    syslibs => [ @{$OS_POSIX{syslibs}}, qw( kvm ) ],
 
     -thirdparty => {
         uv => { %TP_UVDUMMY, objects => '$(UV_FREEBSD)' },
@@ -411,9 +417,8 @@ our %OS_SOLARIS = (
 our %OS_DARWIN = (
     %OS_POSIX,
 
-    ldsys    => '-framework %s',
     defs     => [ qw( _DARWIN_USE_64_BIT_INODE=1 ) ],
-    syslibs  => [ qw( ApplicationServices CoreServices Foundation ) ],
+    syslibs  => [],
     usrlibs  => [ qw( pthread ) ],
 
     dll => 'lib%s.dylib',
