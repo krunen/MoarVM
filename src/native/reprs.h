@@ -1,24 +1,3 @@
-#define MVM_REPR_ID_CPointer 25
-#define MVM_REPR_ID_CScalar  26
-#define MVM_REPR_ID_CArray   27
-#define MVM_REPR_ID_CStruct  28
-#define MVM_REPR_ID_CUnion   29
-
-typedef struct MVMCPointer MVMCPointer;
-typedef struct MVMCPointerBody MVMCPointerBody;
-
-typedef struct MVMCScalar MVMCScalar;
-typedef struct MVMCScalarBody MVMCScalarBody;
-
-typedef struct MVMCArray MVMCArray;
-typedef struct MVMCArrayBody MVMCArrayBody;
-
-typedef struct MVMCStruct MVMCStruct;
-typedef struct MVMCStructBody MVMCStructBody;
-
-typedef struct MVMCUnion MVMCUnion;
-typedef struct MVMCUnionBody MVMCUnionBody;
-
 enum {
     MVM_CSCALAR_VOID    =  0,
     MVM_CSCALAR_CHAR    =  1,
@@ -100,5 +79,20 @@ struct MVMCUnion {
     MVMCUnionBody body;
 };
 
-MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *type_obj,
-        MVMObject *ptr_obj, MVMint64 offset);
+struct MVMCFlexibleStructBody {
+    void *ptr;
+    MVMuint8 *obj_map;
+    MVMuint64 flexible_size;
+};
+
+struct MVMCFlexibleStruct {
+    MVMObject common;
+    MVMCFlexibleStructBody body;
+};
+
+MVMREPROps * MVMCPointer_initialize(MVMThreadContext *tc);
+MVMREPROps * MVMCScalar_initialize(MVMThreadContext *tc);
+MVMREPROps * MVMCArray_initialize(MVMThreadContext *tc);
+MVMREPROps * MVMCStruct_initialize(MVMThreadContext *tc);
+MVMREPROps * MVMCUnion_initialize(MVMThreadContext *tc);
+MVMREPROps * MVMCFlexibleStruct_initialize(MVMThreadContext *tc);

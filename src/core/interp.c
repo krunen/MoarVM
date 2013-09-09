@@ -1,7 +1,7 @@
 #include "moarvm.h"
 #include "math.h"
 #include "platform/time.h"
-#include "native.h"
+#include "native/ops.h"
 
 /* Macros for getting things from the bytecode stream. */
 #define GET_REG(pc, idx)    reg_base[*((MVMuint16 *)(pc + idx))]

@@ -251,6 +251,12 @@ void MVM_repr_initialize_registry(MVMThreadContext *tc) {
     repr_registrar(tc, "VMException", MVMException_initialize);
     repr_registrar(tc, "MVMStaticFrame", MVMStaticFrame_initialize);
     repr_registrar(tc, "MVMCompUnit", MVMCompUnit_initialize);
+    repr_registrar(tc, "MVMCPointer", MVMCPointer_initialize);
+    repr_registrar(tc, "MVMCScalar", MVMCScalar_initialize);
+    repr_registrar(tc, "MVMCArray", MVMCArray_initialize);
+    repr_registrar(tc, "MVMCStruct", MVMCStruct_initialize);
+    repr_registrar(tc, "MVMCUnion", MVMCUnion_initialize);
+    repr_registrar(tc, "MVMCFlexibleStruct", MVMCFlexibleStruct_initialize);
 }
 
 /* Get a representation's ID from its name. Note that the IDs may change so

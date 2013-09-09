@@ -24,6 +24,7 @@
 #include "6model/reprs/MVMException.h"
 #include "6model/reprs/MVMStaticFrame.h"
 #include "6model/reprs/MVMCompUnit.h"
+#include "native/reprs.h"
 
 /* REPR related functions. */
 void MVM_repr_initialize_registry(MVMThreadContext *tc);
@@ -58,3 +59,9 @@ MVMREPROps * MVM_repr_get_by_name(MVMThreadContext *tc, MVMString *name);
 #define MVM_REPR_ID_MVMException            22
 #define MVM_REPR_ID_MVMStaticFrame          23
 #define MVM_REPR_ID_MVMCompUnit             24
+#define MVM_REPR_ID_CPointer                25
+#define MVM_REPR_ID_CScalar                 26
+#define MVM_REPR_ID_CArray                  27
+#define MVM_REPR_ID_CStruct                 28
+#define MVM_REPR_ID_CUnion                  29
+#define MVM_REPR_ID_CFlexibleStruct         30

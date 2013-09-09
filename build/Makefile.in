@@ -114,13 +114,14 @@ OBJECTS = src/core/args@obj@ \
           src/strings/latin1@obj@ \
           src/strings/utf16@obj@ \
           src/math/bigintops@obj@ \
+          src/native/ops@obj@ \
           src/moarvm@obj@ \
-          src/native@obj@ \
           @platform@
 
 HEADERS = src/moarvm.h \
           src/types.h \
-          src/native.h \
+          src/native/ops.h \
+          src/native/reprs.h \
           src/6model/6model.h \
           src/core/instance.h \
           src/core/threadcontext.h \
