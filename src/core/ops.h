@@ -493,5 +493,6 @@
 #define MVM_OP_cwd 489
 #define MVM_OP_seed 490
 #define MVM_OP_rethrow 491
+#define MVM_OP_ptrcast 492
 
 MVMOpInfo * MVM_op_get_op(unsigned short op);

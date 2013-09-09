@@ -1,6 +1,7 @@
 #include "moarvm.h"
 #include "math.h"
 #include "platform/time.h"
+#include "native.h"
 
 /* Macros for getting things from the bytecode stream. */
 #define GET_REG(pc, idx)    reg_base[*((MVMuint16 *)(pc + idx))]
@@ -3348,6 +3349,15 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                     MVM_exception_throw_adhoc(tc, "rethrow requires an MVMException");
                 }
                 cur_op += 2;
+                goto NEXT;
+            }
+            OP(ptrcast): {
+                MVMObject *type_obj = GET_REG(cur_op, 2).o;
+                MVMObject *ptr_obj  = GET_REG(cur_op, 4).o;
+                MVMint64   offset   = GET_I64(cur_op, 6);
+                GET_REG(cur_op, 0).o = MVM_native_ptrcast(tc, type_obj,
+                        ptr_obj, offset);
+                cur_op += 14;
                 goto NEXT;
             }
 #if !MVM_CGOTO
