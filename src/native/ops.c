@@ -3,8 +3,8 @@
 
 MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *type_obj,
         MVMObject *ptr_obj) {
-    MVMuint32 ptr_id  = ptr_obj->st->REPR->ID;
-    MVMuint32 type_id = type_obj->st->REPR->ID;
+    MVMuint32 ptr_id  = REPR(ptr_obj)->ID;
+    MVMuint32 type_id = REPR(type_obj)->ID;
     void *ptr;
 
     switch (ptr_id) {
