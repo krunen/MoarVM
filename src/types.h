@@ -15,6 +15,8 @@ typedef struct MVMCallCaptureBody MVMCallCaptureBody;
 typedef struct MVMCallsite MVMCallsite;
 typedef struct MVMCArray MVMCArray;
 typedef struct MVMCArrayBody MVMCArrayBody;
+typedef struct MVMCBlob MVMCBlob;
+typedef struct MVMCBlobSpec MVMCBlobSpec;
 typedef struct MVMCFlexibleStruct MVMCFlexibleStruct;
 typedef struct MVMCFlexibleStructBody MVMCFlexibleStructBody;
 typedef struct MVMCFunction MVMCFunction;

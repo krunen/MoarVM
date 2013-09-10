@@ -115,6 +115,13 @@ OBJECTS = src/core/args@obj@ \
           src/strings/utf16@obj@ \
           src/math/bigintops@obj@ \
           src/native/ops@obj@ \
+          src/native/CBlob@obj@ \
+          src/native/CPointer@obj@ \
+          src/native/CScalar@obj@ \
+          src/native/CArray@obj@ \
+          src/native/CStruct@obj@ \
+          src/native/CUnion@obj@ \
+          src/native/CFlexibleStruct@obj@ \
           src/moarvm@obj@ \
           @platform@
 

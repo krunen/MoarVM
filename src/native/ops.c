@@ -2,36 +2,36 @@
 #include "native/ops.h"
 
 MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *type_obj,
-        MVMObject *ptr_obj, MVMint64 offset) {
+        MVMObject *ptr_obj) {
+    MVMuint32 ptr_id  = ptr_obj->st->REPR->ID;
+    MVMuint32 type_id = type_obj->st->REPR->ID;
     void *ptr;
 
-    switch (ptr_obj->st->REPR->ID) {
+    switch (ptr_id) {
         case MVM_REPR_ID_CPointer:
-            ptr = ((MVMCPointer *)ptr_obj)->body.ptr;
+            ptr = ((MVMCPointer *)ptr_obj)->body.cobj;
             break;
         case MVM_REPR_ID_CScalar:
-            ptr = ((MVMCScalar*)ptr_obj)->body.ptr;
+            ptr = ((MVMCScalar *)ptr_obj)->body.cobj;
             break;
         case MVM_REPR_ID_CArray:
-            ptr = ((MVMCArray *)ptr_obj)->body.ptr;
+            ptr = ((MVMCArray *)ptr_obj)->body.cobj;
             break;
         case MVM_REPR_ID_CStruct:
-            ptr = ((MVMCStruct *)ptr_obj)->body.ptr;
+            ptr = ((MVMCStruct *)ptr_obj)->body.cobj;
             break;
         case MVM_REPR_ID_CUnion:
-            ptr = ((MVMCUnion *)ptr_obj)->body.ptr;
+            ptr = ((MVMCUnion *)ptr_obj)->body.cobj;
             break;
         case MVM_REPR_ID_CFlexibleStruct:
-            ptr = ((MVMCFlexibleStruct *)ptr_obj)->body.ptr;
+            ptr = ((MVMCFlexibleStruct *)ptr_obj)->body.cobj;
             break;
         default:
-            MVM_exception_throw_adhoc(tc, "cannot cast from non-pointer repr %"
-                    PRIu32, type_obj->st->REPR->ID);
+            MVM_exception_throw_adhoc(tc,
+                    "cannot cast from non-pointer repr %" PRIu32, ptr_id);
     }
 
-    ptr = (char *)ptr + offset;
-
-    switch (type_obj->st->REPR->ID) {
+    switch (type_id) {
         case MVM_REPR_ID_CPointer:
         case MVM_REPR_ID_CScalar:
         case MVM_REPR_ID_CArray:
@@ -43,6 +43,6 @@ MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *type_obj,
 
         default:
             MVM_exception_throw_adhoc(tc, "cannot cast to non-pointer repr %"
-                    PRIu32, type_obj->st->REPR->ID);
+                    PRIu32, type_id);
     }
 }

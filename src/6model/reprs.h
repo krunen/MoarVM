@@ -59,9 +59,10 @@ MVMREPROps * MVM_repr_get_by_name(MVMThreadContext *tc, MVMString *name);
 #define MVM_REPR_ID_MVMException            22
 #define MVM_REPR_ID_MVMStaticFrame          23
 #define MVM_REPR_ID_MVMCompUnit             24
-#define MVM_REPR_ID_CPointer                25
-#define MVM_REPR_ID_CScalar                 26
-#define MVM_REPR_ID_CArray                  27
-#define MVM_REPR_ID_CStruct                 28
-#define MVM_REPR_ID_CUnion                  29
-#define MVM_REPR_ID_CFlexibleStruct         30
+#define MVM_REPR_IF_CBlob                   25
+#define MVM_REPR_ID_CPointer                26
+#define MVM_REPR_ID_CScalar                 27
+#define MVM_REPR_ID_CArray                  28
+#define MVM_REPR_ID_CStruct                 29
+#define MVM_REPR_ID_CUnion                  30
+#define MVM_REPR_ID_CFlexibleStruct         31

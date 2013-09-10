@@ -29,8 +29,18 @@ enum {
     MVM_CSCALAR_FPTR    = 27,
 };
 
+struct MVMCBlob {
+    MVMObject common;
+};
+
+struct MVMCBlobSpec {
+    MVMObject *ctype;
+    MVMuint64  size;
+    MVMuint16  align;
+};
+
 struct MVMCPointerBody {
-    void *ptr;
+    void *cobj;
 };
 
 struct MVMCPointer {
@@ -39,8 +49,8 @@ struct MVMCPointer {
 };
 
 struct MVMCScalarBody {
-    void *ptr;
-    MVMuint8 is_obj;
+    void *cobj;
+    MVMuint32 flags;
 };
 
 struct MVMCScalar {
@@ -49,8 +59,9 @@ struct MVMCScalar {
 };
 
 struct MVMCArrayBody {
-    void *ptr;
-    MVMuint8 *obj_map;
+    void *cobj;
+    MVMuint32 flags;
+    MVMuint8 *ref_map;
     MVMuint64 size;
 };
 
@@ -60,8 +71,9 @@ struct MVMCArray {
 };
 
 struct MVMCStructBody {
-    void *ptr;
-    MVMuint8 *obj_map;
+    void *cobj;
+    MVMuint32 flags;
+    MVMuint8 *ref_map;
 };
 
 struct MVMCStruct {
@@ -70,8 +82,9 @@ struct MVMCStruct {
 };
 
 struct MVMCUnionBody {
-    void *ptr;
-    MVMuint8 *obj_map;
+    void *cobj;
+    MVMuint32 flags;
+    MVMuint8 *ref_map;
 };
 
 struct MVMCUnion {
@@ -80,8 +93,9 @@ struct MVMCUnion {
 };
 
 struct MVMCFlexibleStructBody {
-    void *ptr;
-    MVMuint8 *obj_map;
+    void *cobj;
+    MVMuint32 flags;
+    MVMuint8 *ref_map;
     MVMuint64 flexible_size;
 };
 
@@ -90,6 +104,7 @@ struct MVMCFlexibleStruct {
     MVMCFlexibleStructBody body;
 };
 
+MVMREPROps * MVMCBlob_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCPointer_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCScalar_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCArray_initialize(MVMThreadContext *tc);

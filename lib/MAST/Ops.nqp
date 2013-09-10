@@ -988,7 +988,7 @@ BEGIN {
     1,
     1,
     1,
-    4);
+    3);
     MAST::Ops.WHO<@values> := nqp::list_i(72,
     33,
     72,
@@ -2182,8 +2182,7 @@ BEGIN {
     65,
     66,
     65,
-    65,
-    33);
+    65);
     MAST::Ops.WHO<%codes> := nqp::hash('no_op', 0,
     'goto', 1,
     'if_i', 2,
