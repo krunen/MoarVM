@@ -3365,10 +3365,10 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                 goto NEXT;
             }
             OP(ptrcast): {
-                MVMObject *base = GET_REG(cur_op, 2).o;
+                MVMObject *src  = GET_REG(cur_op, 2).o;
                 MVMObject *type = GET_REG(cur_op, 4).o;
                 MVMint64 offset = GET_REG(cur_op, 6).i64;
-                GET_REG(cur_op, 0).o = MVM_native_ptrcast(tc, base, type, offset);
+                GET_REG(cur_op, 0).o = MVM_native_ptrcast(tc, src, type, offset);
                 cur_op += 8;
                 goto NEXT;
             }

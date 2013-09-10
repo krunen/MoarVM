@@ -18,7 +18,7 @@ MVMObject * MVM_native_blobptr(MVMThreadContext *tc, MVMObject *blob,
     MVMuint32    blob_id = REPR(blob)->ID;
     MVMuint32    type_id = REPR(type)->ID;
     MVMuint64    blob_size;
-    MVMuint64   *type_data, type_size;
+    MVMuint64   *type_rdata, type_size;
     MVMCPointer *ptr;
 
     if (blob_id != MVM_REPR_ID_CBlob)
@@ -34,8 +34,8 @@ MVMObject * MVM_native_blobptr(MVMThreadContext *tc, MVMObject *blob,
         case MVM_REPR_ID_CStruct:
         case MVM_REPR_ID_CUnion:
         case MVM_REPR_ID_CFlexibleStruct:
-            type_data = STABLE(type)->REPR_data;
-            type_size = type_data ? *type_data : 0;
+            type_rdata = STABLE(type)->REPR_data;
+            type_size  = type_rdata ? *type_rdata : 0;
             break;
 
         default:
@@ -57,67 +57,66 @@ MVMObject * MVM_native_blobptr(MVMThreadContext *tc, MVMObject *blob,
     return (MVMObject *)ptr;
 }
 
-MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *base,
+MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *src,
         MVMObject *type, MVMint64 offset) {
-    MVMuint32  base_id   = REPR(base)->ID;
-    MVMuint32  type_id   = REPR(base)->ID;
-    MVMuint64 *type_data, type_size;
+    MVMuint32  src_id    = REPR(src)->ID;
+    MVMuint32  dest_id   = REPR(type)->ID;
+    MVMuint64 *dest_rdata, dest_size;
+    MVMCPointer *dest;
     MVMCPointerBody *body;
-    void *ptr;
+    MVMCBlob *blob;
+    void *cptr;
 
-    switch (base_id) {
+    switch (src_id) {
         case MVM_REPR_ID_CPointer:
         case MVM_REPR_ID_CScalar:
         case MVM_REPR_ID_CArray:
         case MVM_REPR_ID_CStruct:
         case MVM_REPR_ID_CUnion:
         case MVM_REPR_ID_CFlexibleStruct:
-            body = &((MVMCPointer *)base)->body;
-            ptr  = (char *)body->cobj + offset;
+            body = &((MVMCPointer *)src)->body;
+            cptr = (char *)body->cobj + offset;
+            blob = body->blob;
             break;
 
         default:
             MVM_exception_throw_adhoc(tc,
-                    "cannot cast from non-pointer repr %" PRIu32, base_id);
+                    "cannot cast from non-pointer repr %" PRIu32, src_id);
     }
 
-    switch (type_id) {
+    switch (dest_id) {
         case MVM_REPR_ID_CPointer:
         case MVM_REPR_ID_CScalar:
         case MVM_REPR_ID_CArray:
         case MVM_REPR_ID_CStruct:
         case MVM_REPR_ID_CUnion:
         case MVM_REPR_ID_CFlexibleStruct:
-            type_data = STABLE(type)->REPR_data;
-            type_size = type_data ? *type_data : 0;
+            dest_rdata = STABLE(type)->REPR_data;
+            dest_size = dest_rdata ? *dest_rdata : 0;
             break;
 
         default:
             MVM_exception_throw_adhoc(tc, "cannot cast to non-pointer repr %"
-                    PRIu32, type_id);
+                    PRIu32, dest_id);
     }
 
     if (body->blob)
     {
         uintptr_t lower = (uintptr_t)body->blob->body.storage;
         uintptr_t upper = lower + body->blob->body.size;
-        uintptr_t value = (uintptr_t)ptr;
+        uintptr_t value = (uintptr_t)cptr;
 
-        if (value < lower || value + type_size > upper)
-            MVM_exception_throw_adhoc(tc, "pointer cast yields range %" PRIxPTR
+        if (value < lower || value + dest_size > upper)
+            MVM_exception_throw_adhoc(tc, "pointer cast targets range %" PRIxPTR
                     "..%" PRIxPTR " overflowing blob range %" PRIxPTR "..%"
-                    PRIxPTR, value, value + type_size, lower, upper);
+                    PRIxPTR, value, value + dest_size, lower, upper);
     }
 
-    switch (type_id) {
-        case MVM_REPR_ID_CPointer:
-        case MVM_REPR_ID_CScalar:
-        case MVM_REPR_ID_CArray:
-        case MVM_REPR_ID_CStruct:
-        case MVM_REPR_ID_CUnion:
-        case MVM_REPR_ID_CFlexibleStruct:
-            MVM_exception_throw_adhoc(tc, "ptrcast NYI");
-    }
+    MVMROOT(tc, blob, {
+        dest = (MVMCPointer *)MVM_repr_alloc_init(tc, type);
+        dest->body.cobj = cptr;
+        dest->body.blob = (MVMCBlob *)blob;
+    });
 
-    return NULL;
+    return (MVMObject *)dest;
 }
