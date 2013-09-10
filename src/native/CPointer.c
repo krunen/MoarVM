@@ -19,6 +19,14 @@ static MVMObject * allocate(MVMThreadContext *tc, MVMSTable *st) {
     return MVM_gc_allocate_object(tc, st);
 }
 
+static void initialize(MVMThreadContext *tc, MVMSTable *st, MVMObject *root,
+        void *data) {
+    MVMCPointerBody *body = data;
+
+    body->cobj = NULL;
+    body->blob = NULL;
+}
+
 static void copy_to(MVMThreadContext *tc, MVMSTable *st, void *src,
         MVMObject *dest_root, void *dest) {
     MVMCPointerBody *src_ptr  = src;
@@ -30,20 +38,7 @@ static void copy_to(MVMThreadContext *tc, MVMSTable *st, void *src,
 
 static void set_int(MVMThreadContext *tc, MVMSTable *st, MVMObject *root,
         void *data, MVMint64 value) {
-    MVMCPointerBody *ptr  = data;
-
-    if (ptr->blob) {
-        MVMCBlobBody *blob = &ptr->blob->body;
-        MVMuint64 lower_bound = (MVMuint64)blob->storage;
-        MVMuint64 upper_bound = (MVMuint64)(blob->storage + blob->size);
-
-        if (value < lower_bound || value > upper_bound)
-            MVM_exception_throw_adhoc(tc, "pointer value %" PRIu64
-                    " out of blob range %" PRIu64 "..%" PRIu64,
-                    value, lower_bound, upper_bound);
-    }
-
-    ptr->cobj = (void *)value;
+    ((MVMCPointerBody *)data)->cobj = (void *)value;
 }
 
 static MVMint64 get_int(MVMThreadContext *tc, MVMSTable *st, MVMObject *root,
@@ -104,7 +99,7 @@ static void compose(MVMThreadContext *tc, MVMSTable *st, MVMObject *info) {
 static MVMREPROps this_repr = {
     type_object_for,
     allocate,
-    NULL, /* initialize */
+    initialize,
     copy_to,
     NULL, /* attr_funcs */
     &box_funcs,

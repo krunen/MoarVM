@@ -3338,10 +3338,10 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                 MVMException *ex = (MVMException *)ex_obj;
                 MVMObject *got_ex_obj = GET_REG(cur_op, 0).o;
                 ex->body.category = MVM_EX_CAT_CATCH;
-                
+
                 if (REPR(got_ex_obj)->ID == MVM_REPR_ID_MVMException) {
                     MVMException *got_ex = (MVMException *)got_ex_obj;
-                    
+
                     MVM_ASSIGN_REF(tc, ex_obj, ex->body.message, got_ex->body.message);
                     MVM_exception_throwobj(tc, MVM_EX_THROW_DYN, ex_obj, NULL);
                 }
@@ -3351,25 +3351,25 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                 cur_op += 2;
                 goto NEXT;
             }
-            OP(ptrcast): {
-                MVMObject *type_obj  = GET_REG(cur_op, 2).o;
-                MVMObject *ptr_obj   = GET_REG(cur_op, 4).o;
-                GET_REG(cur_op, 0).o = MVM_native_ptrcast(tc, type_obj, ptr_obj);
-                cur_op += 6;
-                goto NEXT;
-            }
-            OP(ptrsetblob): {
-                MVMObject *ptr_obj  = GET_REG(cur_op, 0).o;
-                MVMObject *blob_obj = GET_REG(cur_op, 2).o;
-                MVMuint64  offset   = GET_REG(cur_op, 4).ui64;
-                MVM_native_ptrsetblob(tc, ptr_obj, blob_obj, offset);
-                cur_op += 6;
-                goto NEXT;
-            }
             OP(bloballoc): {
                 MVMuint64 size = GET_REG(cur_op, 2).ui64;
                 GET_REG(cur_op, 0).o = MVM_native_bloballoc(tc, size);
                 cur_op += 4;
+                goto NEXT;
+            }
+            OP(blobptr): {
+                MVMObject *blob = GET_REG(cur_op, 2).o;
+                MVMObject *type = GET_REG(cur_op, 4).o;
+                GET_REG(cur_op, 0).o = MVM_native_blobptr(tc, blob, type);
+                cur_op += 6;
+                goto NEXT;
+            }
+            OP(ptrcast): {
+                MVMObject *base = GET_REG(cur_op, 2).o;
+                MVMObject *type = GET_REG(cur_op, 4).o;
+                MVMint64 offset = GET_REG(cur_op, 6).i64;
+                GET_REG(cur_op, 0).o = MVM_native_ptrcast(tc, base, type, offset);
+                cur_op += 8;
                 goto NEXT;
             }
 #if !MVM_CGOTO
