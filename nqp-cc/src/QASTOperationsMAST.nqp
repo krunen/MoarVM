@@ -1372,6 +1372,11 @@ QAST::MASTOperations.add_core_moarop_mapping('invokewithcapture', 'invokewithcap
 QAST::MASTOperations.add_core_moarop_mapping('multicacheadd', 'multicacheadd');
 QAST::MASTOperations.add_core_moarop_mapping('multicachefind', 'multicachefind');
 
+# Nativecall
+QAST::MASTOperations.add_core_moarop_mapping('ptrcast', 'ptrcast');
+QAST::MASTOperations.add_core_moarop_mapping('ptrsetblob', 'ptrsetblob');
+QAST::MASTOperations.add_core_moarop_mapping('bloballoc', 'bloballoc');
+
 # Constant mapping.
 my %const_map := nqp::hash(
     'CCLASS_ANY',           65535,

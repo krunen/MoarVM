@@ -3361,15 +3361,15 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
             OP(ptrsetblob): {
                 MVMObject *ptr_obj  = GET_REG(cur_op, 0).o;
                 MVMObject *blob_obj = GET_REG(cur_op, 2).o;
-                MVMuint64  offset   = GET_UI64(cur_op, 4);
+                MVMuint64  offset   = GET_REG(cur_op, 4).ui64;
                 MVM_native_ptrsetblob(tc, ptr_obj, blob_obj, offset);
-                cur_op += 12;
+                cur_op += 6;
                 goto NEXT;
             }
             OP(bloballoc): {
-                MVMuint64 size = GET_UI64(cur_op, 2);
+                MVMuint64 size = GET_REG(cur_op, 2).ui64;
                 GET_REG(cur_op, 0).o = MVM_native_bloballoc(tc, size);
-                cur_op += 10;
+                cur_op += 4;
                 goto NEXT;
             }
 #if !MVM_CGOTO

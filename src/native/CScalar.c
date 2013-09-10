@@ -63,3 +63,9 @@ static const char * const CNAMES[] = {
     "void *",
     "void (*)(void)",
 };
+
+static MVMREPROps this_repr;
+
+MVMREPROps * MVMCScalar_initialize(MVMThreadContext *tc) {
+    return &this_repr;
+}

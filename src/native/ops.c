@@ -53,8 +53,8 @@ void MVM_native_ptrsetblob(MVMThreadContext *tc, MVMObject *ptr_obj,
         MVM_exception_throw_adhoc(tc, "cannot set non-blob repr %" PRIu32
                 " on pointer", blob_id);
 
-    ptr  = (MVMCPointer *)ptr;
-    blob = (MVMCBlob *)blob;
+    ptr  = (MVMCPointer *)ptr_obj;
+    blob = (MVMCBlob *)blob_obj;
 
     if (offset > blob->body.size)
         MVM_exception_throw_adhoc(tc, "pointer offset %" PRIu64
@@ -65,5 +65,12 @@ void MVM_native_ptrsetblob(MVMThreadContext *tc, MVMObject *ptr_obj,
 }
 
 MVMObject * MVM_native_bloballoc(MVMThreadContext *tc, MVMuint64 size) {
-    return NULL;
+    MVMObject    *blob = MVM_gc_allocate_object(tc, STABLE(MVMCBlob_WHAT));
+    MVMCBlobBody *body = &((MVMCBlob *)blob)->body;
+
+    body->storage = malloc(size);
+    body->size    = size;
+    body->refmap  = NULL;
+
+    return blob;
 }
