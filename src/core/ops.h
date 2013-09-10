@@ -494,5 +494,7 @@
 #define MVM_OP_seed 490
 #define MVM_OP_rethrow 491
 #define MVM_OP_ptrcast 492
+#define MVM_OP_ptrsetblob 493
+#define MVM_OP_bloballoc 494
 
 MVMOpInfo * MVM_op_get_op(unsigned short op);

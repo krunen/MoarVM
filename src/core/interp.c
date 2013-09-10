@@ -3358,6 +3358,20 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                 cur_op += 6;
                 goto NEXT;
             }
+            OP(ptrsetblob): {
+                MVMObject *ptr_obj  = GET_REG(cur_op, 0).o;
+                MVMObject *blob_obj = GET_REG(cur_op, 2).o;
+                MVMuint64  offset   = GET_UI64(cur_op, 4);
+                MVM_native_ptrsetblob(tc, ptr_obj, blob_obj, offset);
+                cur_op += 12;
+                goto NEXT;
+            }
+            OP(bloballoc): {
+                MVMuint64 size = GET_UI64(cur_op, 2);
+                GET_REG(cur_op, 0).o = MVM_native_bloballoc(tc, size);
+                cur_op += 10;
+                goto NEXT;
+            }
 #if !MVM_CGOTO
             default:
                 MVM_panic(MVM_exitcode_invalidopcode, "Invalid opcode executed (corrupt bytecode stream?) opcode %u", *(cur_op-2));

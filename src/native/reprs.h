@@ -29,18 +29,20 @@ enum {
     MVM_CSCALAR_FPTR    = 27,
 };
 
-struct MVMCBlob {
-    MVMObject common;
+struct MVMCBlobBody {
+    char *storage;
+    MVMuint64 size;
+    MVMuint8 *refmap;
 };
 
-struct MVMCBlobSpec {
-    MVMObject *ctype;
-    MVMuint64  size;
-    MVMuint16  align;
+struct MVMCBlob {
+    MVMObject common;
+    MVMCBlobBody body;
 };
 
 struct MVMCPointerBody {
     void *cobj;
+    MVMCBlob *blob;
 };
 
 struct MVMCPointer {
@@ -48,60 +50,86 @@ struct MVMCPointer {
     MVMCPointerBody body;
 };
 
-struct MVMCScalarBody {
-    void *cobj;
-    MVMuint32 flags;
+union MVMCScalarBody {
+    MVMCPointerBody parent_body;
+    struct {
+        void *cobj;
+        MVMCBlob *blob;
+    };
 };
 
-struct MVMCScalar {
-    MVMObject common;
-    MVMCScalarBody body;
+union MVMCScalar {
+    MVMCPointer parent;
+    struct {
+        MVMObject common;
+        MVMCScalarBody body;
+    };
 };
 
-struct MVMCArrayBody {
-    void *cobj;
-    MVMuint32 flags;
-    MVMuint8 *ref_map;
-    MVMuint64 size;
+union MVMCArrayBody {
+    MVMCPointerBody parent_body;
+    struct {
+        void *cobj;
+        MVMCBlob *blob;
+        MVMuint64 size;
+    };
 };
 
-struct MVMCArray {
-    MVMObject common;
-    MVMCArrayBody body;
+union MVMCArray {
+    MVMCPointer parent;
+    struct {
+        MVMObject common;
+        MVMCArrayBody body;
+    };
 };
 
-struct MVMCStructBody {
-    void *cobj;
-    MVMuint32 flags;
-    MVMuint8 *ref_map;
+union MVMCStructBody {
+    MVMCPointerBody parent_body;
+    struct {
+        void *cobj;
+        MVMCBlob *blob;
+    };
 };
 
-struct MVMCStruct {
-    MVMObject common;
-    MVMCStructBody body;
+union MVMCStruct {
+    MVMCPointer parent;
+    struct {
+        MVMObject common;
+        MVMCStructBody body;
+    };
 };
 
-struct MVMCUnionBody {
-    void *cobj;
-    MVMuint32 flags;
-    MVMuint8 *ref_map;
+union MVMCUnionBody {
+    MVMCPointerBody parent_body;
+    struct {
+        void *cobj;
+        MVMCBlob *blob;
+    };
 };
 
-struct MVMCUnion {
-    MVMObject common;
-    MVMCUnionBody body;
+union MVMCUnion {
+    MVMCPointer parent;
+    struct {
+        MVMObject common;
+        MVMCUnionBody body;
+    };
 };
 
-struct MVMCFlexibleStructBody {
-    void *cobj;
-    MVMuint32 flags;
-    MVMuint8 *ref_map;
-    MVMuint64 flexible_size;
+union MVMCFlexibleStructBody {
+    MVMCStructBody parent_body;
+    struct {
+        void *cobj;
+        MVMCBlob *blob;
+        MVMCArray *flexibles;
+    };
 };
 
-struct MVMCFlexibleStruct {
-    MVMObject common;
-    MVMCFlexibleStructBody body;
+union MVMCFlexibleStruct {
+    MVMCStruct parent;
+    struct {
+        MVMObject common;
+        MVMCFlexibleStructBody body;
+    };
 };
 
 MVMREPROps * MVMCBlob_initialize(MVMThreadContext *tc);

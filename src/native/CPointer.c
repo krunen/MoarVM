@@ -21,14 +21,29 @@ static MVMObject * allocate(MVMThreadContext *tc, MVMSTable *st) {
 
 static void copy_to(MVMThreadContext *tc, MVMSTable *st, void *src,
         MVMObject *dest_root, void *dest) {
-    MVMCPointerBody *src_body  = (MVMCPointerBody *)src;
-    MVMCPointerBody *dest_body = (MVMCPointerBody *)dest;
-    dest_body->cobj = src_body->cobj;
+    MVMCPointerBody *src_ptr  = src;
+    MVMCPointerBody *dest_ptr = dest;
+
+    dest_ptr->cobj = src_ptr->cobj;
+    MVM_ASSIGN_REF(tc, dest_root, dest_ptr->blob, src_ptr->blob);
 }
 
 static void set_int(MVMThreadContext *tc, MVMSTable *st, MVMObject *root,
         void *data, MVMint64 value) {
-    ((MVMCPointerBody *)data)->cobj = (void *)value;
+    MVMCPointerBody *ptr  = data;
+
+    if (ptr->blob) {
+        MVMCBlobBody *blob = &ptr->blob->body;
+        MVMuint64 lower_bound = (MVMuint64)blob->storage;
+        MVMuint64 upper_bound = (MVMuint64)(blob->storage + blob->size);
+
+        if (value < lower_bound || value > upper_bound)
+            MVM_exception_throw_adhoc(tc, "pointer value %" PRIu64
+                    " out of blob range %" PRIu64 "..%" PRIu64,
+                    value, lower_bound, upper_bound);
+    }
+
+    ptr->cobj = (void *)value;
 }
 
 static MVMint64 get_int(MVMThreadContext *tc, MVMSTable *st, MVMObject *root,
@@ -68,11 +83,18 @@ static void * get_boxed_ref(MVMThreadContext *tc, MVMSTable *st,
 
 static MVMStorageSpec get_storage_spec(MVMThreadContext *tc, MVMSTable *st) {
     MVMStorageSpec spec;
-    spec.inlineable      = MVM_STORAGE_SPEC_INLINED;
-    spec.bits            = sizeof(void *) * 8;
-    spec.boxed_primitive = MVM_STORAGE_SPEC_BP_INT;
+    spec.inlineable      = MVM_STORAGE_SPEC_REFERENCE;
+    spec.boxed_primitive = MVM_STORAGE_SPEC_BP_NONE;
     spec.can_box         = MVM_STORAGE_SPEC_CAN_BOX_INT;
     return spec;
+}
+
+static void gc_mark(MVMThreadContext *tc, MVMSTable *st, void *data,
+        MVMGCWorklist *worklist) {
+    MVMCPointerBody *body = data;
+
+    if (body->blob)
+        MVM_gc_worklist_add(tc, worklist, body->blob);
 }
 
 static void compose(MVMThreadContext *tc, MVMSTable *st, MVMObject *info) {
@@ -96,7 +118,7 @@ static MVMREPROps this_repr = {
     NULL, /* serialize_repr_data */
     NULL, /* deserialize_repr_data */
     NULL, /* deserialize_stable_size */
-    NULL, /* gc_mark */
+    gc_mark,
     NULL, /* gc_free */
     NULL, /* gc_cleanup */
     NULL, /* gc_mark_repr_data */
