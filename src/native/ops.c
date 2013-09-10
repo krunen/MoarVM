@@ -65,7 +65,8 @@ void MVM_native_ptrsetblob(MVMThreadContext *tc, MVMObject *ptr_obj,
 }
 
 MVMObject * MVM_native_bloballoc(MVMThreadContext *tc, MVMuint64 size) {
-    MVMObject    *blob = MVM_gc_allocate_object(tc, STABLE(MVMCBlob_WHAT));
+    MVMObject    *WHAT = tc->instance->CBlob_WHAT;
+    MVMObject    *blob = MVM_gc_allocate_object(tc, STABLE(WHAT));
     MVMCBlobBody *body = &((MVMCBlob *)blob)->body;
 
     body->storage = malloc(size);

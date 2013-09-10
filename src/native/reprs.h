@@ -132,8 +132,6 @@ union MVMCFlexibleStruct {
     };
 };
 
-extern MVMObject *MVMCBlob_WHAT;
-
 MVMREPROps * MVMCBlob_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCPointer_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCScalar_initialize(MVMThreadContext *tc);

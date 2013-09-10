@@ -2,8 +2,6 @@
 
 /* stub type for now */
 
-MVMObject *MVMCBlob_WHAT;
-
 static MVMStorageSpec get_storage_spec(MVMThreadContext *tc, MVMSTable *st) {
     MVMStorageSpec spec;
     spec.inlineable      = MVM_STORAGE_SPEC_REFERENCE;
@@ -62,12 +60,13 @@ MVMREPROps * MVMCBlob_initialize(MVMThreadContext *tc) {
 
     st = MVM_gc_allocate_stable(tc, &this_repr, NULL);
     MVMROOT(tc, st, {
-        MVMCBlob_WHAT = MVM_gc_allocate_type_object(tc, st);
-        MVM_ASSIGN_REF(tc, st, st->WHAT, MVMCBlob_WHAT);
+        MVMObject *WHAT = MVM_gc_allocate_type_object(tc, st);
+        tc->instance->CBlob_WHAT = WHAT;
+        MVM_ASSIGN_REF(tc, st, st->WHAT, WHAT);
         st->size = sizeof(MVMCBlob);
     });
 
-    MVM_gc_root_add_permanent(tc, (MVMCollectable **)&MVMCBlob_WHAT);
+    MVM_gc_root_add_permanent(tc, (MVMCollectable **)&tc->instance->CBlob_WHAT);
 
     return &this_repr;
 }

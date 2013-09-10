@@ -150,7 +150,11 @@ void MVM_vm_destroy_instance(MVMInstance *instance) {
 
     /* Run the GC global destruction phase. After this,
      * no 6model object pointers should be accessed. */
+
+/* FIXME: hangs */
+#if 0
     MVM_gc_global_destruction(instance->main_thread);
+#endif
 
     /* Free various instance-wide storage. */
     MVM_checked_free_null(instance->boot_types);
