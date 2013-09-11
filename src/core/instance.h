@@ -151,6 +151,8 @@ struct MVMInstance {
     MVMLoadedCompUnitName *loaded_compunits;
     uv_mutex_t       mutex_loaded_compunits;
 
-    /* cache type objects for native C types we don't expect to change */
+    /* Cache type objects for native C types with fixed REPR_data */
     MVMObject *CBlob_WHAT;
+    MVMObject *CPointer_WHAT;
+    MVMObject *CScalar_WHATs[MVM_CSCALAR_TYPE_COUNT];
 };

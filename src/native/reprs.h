@@ -165,9 +165,6 @@ union MVMCFlexStruct {
     MVMCFlexStruct_ FLEX_STRUCT;
 };
 
-extern MVMREPROps MVM_REPR_CPointer;
-extern MVMREPROps MVM_REPR_CScalar;
-
 MVMREPROps * MVMCBlob_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCPointer_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCScalar_initialize(MVMThreadContext *tc);

@@ -46,6 +46,9 @@ typedef double   MVMnum64;
 #  define MVM_PRIVATE
 #endif
 
+/* Number of scalar native C types */
+enum { MVM_CSCALAR_TYPE_COUNT = 28 };
+
 /* Headers for APIs for various other data structures and APIs. */
 #include "6model/6model.h"
 #include "core/threadcontext.h"

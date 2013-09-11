@@ -5,7 +5,7 @@
 
 typedef void func(void);
 
-static const MVMCScalarSpec SPECS[] = {
+static const MVMCScalarSpec SPECS[MVM_CSCALAR_TYPE_COUNT] = {
     { 0, 0, 0, MVM_CSCALAR_VOID, "void" },
     { 1, 1, MVM_STORAGE_SPEC_CAN_BOX_INT, MVM_CSCALAR_CHAR, "signed char" },
     { 1, 1, MVM_STORAGE_SPEC_CAN_BOX_INT, MVM_CSCALAR_UCHAR, "unsigned char" },
@@ -59,11 +59,12 @@ static const MVMCScalarSpec SPECS[] = {
     { sizeof (func *), ALIGNOF(func *), 0, MVM_CSCALAR_FPTR, "void (*)(void)" },
 };
 
+static MVMREPROps this_repr;
 static MVMContainerSpec container_spec;
 
 const MVMCScalarSpec * MVM_native_get_scalar_spec(MVMThreadContext *tc,
         MVMint64 id) {
-    if (id < 0 || id >= sizeof SPECS / sizeof *SPECS)
+    if (id < 0 || id >= MVM_CSCALAR_TYPE_COUNT)
         MVM_exception_throw_adhoc(tc, "illegal CScalar id %" PRIi64, id);
 
     return SPECS + id;
@@ -72,7 +73,7 @@ const MVMCScalarSpec * MVM_native_get_scalar_spec(MVMThreadContext *tc,
 /* REPROps */
 
 static MVMObject * type_object_for(MVMThreadContext *tc, MVMObject *HOW) {
-    MVMSTable *st  = MVM_gc_allocate_stable(tc, &MVM_REPR_CScalar, HOW);
+    MVMSTable *st = MVM_gc_allocate_stable(tc, &this_repr, HOW);
 
     MVMROOT(tc, st, {
         MVMObject *obj = MVM_gc_allocate_type_object(tc, st);
@@ -139,7 +140,7 @@ static void compose(MVMThreadContext *tc, MVMSTable *st, MVMObject *info) {
             MVM_repr_get_int(tc, info));
 }
 
-MVMREPROps MVM_REPR_CScalar = {
+static MVMREPROps this_repr = {
     type_object_for,
     allocate,
     initialize,
@@ -221,17 +222,40 @@ void store(MVMThreadContext *tc, MVMObject *cont, MVMObject *obj) {
     do_store(tc, scalar_spec->id, ptr, obj);
 }
 
+static void gc_mark_data(MVMThreadContext *tc, MVMSTable *st,
+        MVMGCWorklist *worklist) {
+    /* nothing to mark */
+}
+
 static MVMContainerSpec container_spec = {
     fetch,
     store,
     store_unchecked,
     NULL, /* name */
-    NULL, /* gc_mark_data */
+    gc_mark_data,
     NULL, /* gc_free_data */
     NULL, /* serialize */
     NULL, /* deserialize */
 };
 
 MVMREPROps * MVMCScalar_initialize(MVMThreadContext *tc) {
-    return &MVM_REPR_CScalar;
+    MVMuint16 id;
+
+    for (id = 0; id < MVM_CSCALAR_TYPE_COUNT; id++) {
+        MVMSTable *st = MVM_gc_allocate_stable(tc, &this_repr, NULL);
+
+        MVMROOT(tc, st, {
+            MVMObject *WHAT = MVM_gc_allocate_type_object(tc, st);
+            tc->instance->CScalar_WHATs[id] = WHAT;
+            MVM_ASSIGN_REF(tc, st, st->WHAT, WHAT);
+            st->size = sizeof(MVMCPointer);
+            st->container_spec = &container_spec;
+            st->REPR_data = (void *)(SPECS + id);
+        });
+
+        MVM_gc_root_add_permanent(tc,
+                (MVMCollectable **)&tc->instance->CScalar_WHATs[id]);
+    }
+
+    return &this_repr;
 }

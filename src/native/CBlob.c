@@ -12,10 +12,7 @@ static MVMStorageSpec get_storage_spec(MVMThreadContext *tc, MVMSTable *st) {
 
 static void gc_mark(MVMThreadContext *tc, MVMSTable *st, void *data,
         MVMGCWorklist *worklist) {
-    MVMCPointerBody *body = data;
-
-    if (body->blob)
-        MVM_gc_worklist_add(tc, worklist, body->blob);
+    /* TODO: use refmap to mark object pointers in blob */
 }
 
 static void gc_free(MVMThreadContext *tc, MVMObject *obj) {
@@ -55,10 +52,8 @@ static MVMREPROps this_repr = {
 };
 
 MVMREPROps * MVMCBlob_initialize(MVMThreadContext *tc) {
-    MVMSTable *st;
-    MVMObject *blob;
+    MVMSTable *st = MVM_gc_allocate_stable(tc, &this_repr, NULL);
 
-    st = MVM_gc_allocate_stable(tc, &this_repr, NULL);
     MVMROOT(tc, st, {
         MVMObject *WHAT = MVM_gc_allocate_type_object(tc, st);
         tc->instance->CBlob_WHAT = WHAT;

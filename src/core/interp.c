@@ -3373,17 +3373,17 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                 goto NEXT;
             }
             OP(cpointer): {
-                MVMObject *meta = GET_REG(cur_op, 2).o;
-                MVMObject *type = MVM_REPR_CPointer.type_object_for(tc, meta);
-                GET_REG(cur_op, 0).o = type;
-                cur_op += 4;
+                GET_REG(cur_op, 0).o = tc->instance->CPointer_WHAT;
+                cur_op += 2;
                 goto NEXT;
             }
             OP(cscalar): {
-                MVMuint16  id   = GET_UI16(cur_op, 2);
-                MVMObject *type = MVM_REPR_CScalar.type_object_for(tc, NULL);
-                STABLE(type)->REPR_data = (void *)MVM_native_get_scalar_spec(tc, id);
-                GET_REG(cur_op, 0).o = type;
+                MVMuint16 id = GET_UI16(cur_op, 2);
+                /* TODO: move check to validator */
+                if (id >= MVM_CSCALAR_TYPE_COUNT)
+                    MVM_exception_throw_adhoc(tc,
+                            "illegal CScalar type %" PRIu16, id);
+                GET_REG(cur_op, 0).o = tc->instance->CScalar_WHATs[id];
                 cur_op += 4;
                 goto NEXT;
             }
