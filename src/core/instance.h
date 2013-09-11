@@ -151,6 +151,6 @@ struct MVMInstance {
     MVMLoadedCompUnitName *loaded_compunits;
     uv_mutex_t       mutex_loaded_compunits;
 
-    /* stubbed type object for CBlob until it becomes a proper object */
+    /* cache type objects for native C types we don't expect to change */
     MVMObject *CBlob_WHAT;
 };

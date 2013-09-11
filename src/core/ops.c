@@ -2987,8 +2987,8 @@ static MVMOpInfo MVM_op_infos[] = {
     {
         MVM_OP_cscalar,
         "cscalar",
-        3,
-        { MVM_operand_write_reg | MVM_operand_obj, MVM_operand_read_reg | MVM_operand_obj, MVM_operand_int16 }
+        2,
+        { MVM_operand_write_reg | MVM_operand_obj, MVM_operand_int16 }
     },
     {
         MVM_OP_cscalar_decont_i,
