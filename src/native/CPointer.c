@@ -89,7 +89,7 @@ static void gc_mark(MVMThreadContext *tc, MVMSTable *st, void *data,
     MVMCPointerBody *body = data;
 
     if (body->blob)
-        MVM_gc_worklist_add(tc, worklist, body->blob);
+        MVM_gc_worklist_add(tc, worklist, &body->blob);
 }
 
 static void compose(MVMThreadContext *tc, MVMSTable *st, MVMObject *info) {

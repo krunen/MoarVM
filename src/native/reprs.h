@@ -42,8 +42,8 @@ struct MVMCScalarSpec {
 
 struct MVMCBlobBody {
     char *storage;
-    MVMuint64 size;
-    MVMuint8 *refmap;
+    MVMuint64  size;
+    MVMuint64 *refmap;
 };
 
 struct MVMCBlob {
@@ -73,7 +73,7 @@ union MVMCScalarBody {
 
 typedef struct {
     MVMObject common;
-    MVMCScalarBody body;    
+    MVMCScalarBody body;
 } MVMCScalar_;
 
 union MVMCScalar {

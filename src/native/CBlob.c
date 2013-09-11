@@ -2,6 +2,8 @@
 
 /* stub type for now */
 
+enum { PTR_ALIGN = offsetof(struct { char dummy; void *ptr; }, ptr) };
+
 static MVMStorageSpec get_storage_spec(MVMThreadContext *tc, MVMSTable *st) {
     MVMStorageSpec spec;
     spec.inlineable      = MVM_STORAGE_SPEC_REFERENCE;
@@ -12,7 +14,20 @@ static MVMStorageSpec get_storage_spec(MVMThreadContext *tc, MVMSTable *st) {
 
 static void gc_mark(MVMThreadContext *tc, MVMSTable *st, void *data,
         MVMGCWorklist *worklist) {
-    /* TODO: use refmap to mark object pointers in blob */
+    MVMCBlobBody *body = data;
+    MVMuint64  *refmap = body->refmap;
+    char *cursor, *end;
+    MVMuint64 i;
+
+    if (!refmap)
+        return;
+
+    cursor = body->storage;
+    end    = body->storage + body->size;
+
+    for (i = 0; cursor < end; cursor += PTR_ALIGN, i++)
+        if (refmap[i / 64] >> i % 64 & 1)
+            MVM_gc_worklist_add(tc, worklist, cursor);
 }
 
 static void gc_free(MVMThreadContext *tc, MVMObject *obj) {

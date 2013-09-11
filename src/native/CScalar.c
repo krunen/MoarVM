@@ -126,7 +126,7 @@ static void gc_mark(MVMThreadContext *tc, MVMSTable *st, void *data,
     MVMCScalarBody_ *body = data;
 
     if (body->blob)
-        MVM_gc_worklist_add(tc, worklist, body->blob);
+        MVM_gc_worklist_add(tc, worklist, &body->blob);
 }
 
 static void compose(MVMThreadContext *tc, MVMSTable *st, MVMObject *info) {
@@ -180,7 +180,6 @@ static const MVMCScalarSpec * get_spec_checked(MVMThreadContext *tc,
 
     return spec;
 }
-
 
 static void fetch(MVMThreadContext *tc, MVMObject *cont, MVMRegister *res) {
     const MVMCScalarSpec *spec = get_spec_checked(tc, cont);
