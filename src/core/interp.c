@@ -3374,16 +3374,17 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
             }
             OP(cpointer): {
                 MVMObject *meta = GET_REG(cur_op, 2).o;
-                GET_REG(cur_op, 0).o = MVM_REPR_CPointer.type_object_for(
-                        tc, meta);
+                MVMObject *type = MVM_REPR_CPointer.type_object_for(tc, meta);
+                GET_REG(cur_op, 0).o = type;
                 cur_op += 4;
                 goto NEXT;
             }
             OP(cscalar): {
                 MVMObject *meta = GET_REG(cur_op, 2).o;
                 MVMuint16  id   = GET_UI16(cur_op, 4);
-                MVM_exception_throw_adhoc(tc, "TODO");
-                /*GET_REG(cur_op, 0).o = ???; */
+                MVMObject *type = MVM_REPR_CScalar.type_object_for(tc, meta);
+                STABLE(type)->REPR_data = (void *)MVM_native_get_scalar_spec(tc, id);
+                GET_REG(cur_op, 0).o = type;
                 cur_op += 6;
                 goto NEXT;
             }

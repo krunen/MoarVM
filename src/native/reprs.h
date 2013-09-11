@@ -29,6 +29,13 @@ enum {
     MVM_CSCALAR_FPTR    = 27,
 };
 
+struct MVMCScalarSpec {
+    MVMuint64 size;
+    MVMuint16 align;
+    MVMuint16 id;
+    const char *name;
+};
+
 struct MVMCBlobBody {
     char *storage;
     MVMuint64 size;
@@ -50,89 +57,112 @@ struct MVMCPointer {
     MVMCPointerBody body;
 };
 
+typedef struct {
+    void *cobj;
+    MVMCBlob *blob;
+} MVMCScalarBody_;
+
 union MVMCScalarBody {
-    MVMCPointerBody parent_body;
-    struct {
-        void *cobj;
-        MVMCBlob *blob;
-    };
+    MVMCPointerBody POINTER;
+    MVMCScalarBody_ SCALAR;
 };
+
+typedef struct {
+    MVMObject common;
+    MVMCScalarBody body;    
+} MVMCScalar_;
 
 union MVMCScalar {
-    MVMCPointer parent;
-    struct {
-        MVMObject common;
-        MVMCScalarBody body;
-    };
+    MVMCPointer POINTER;
+    MVMCScalar_ SCALAR;
 };
+
+typedef struct {
+    void *cobj;
+    MVMCBlob *blob;
+    MVMuint64 size;
+} MVMCArrayBody_;
 
 union MVMCArrayBody {
-    MVMCPointerBody parent_body;
-    struct {
-        void *cobj;
-        MVMCBlob *blob;
-        MVMuint64 size;
-    };
+    MVMCPointerBody POINTER;
+    MVMCArrayBody_  ARRAY;
 };
+
+typedef struct {
+    MVMObject common;
+    MVMCArrayBody body;
+} MVMCArray_;
 
 union MVMCArray {
-    MVMCPointer parent;
-    struct {
-        MVMObject common;
-        MVMCArrayBody body;
-    };
+    MVMCPointer POINTER;
+    MVMCArray_  ARRAY;
 };
+
+typedef struct {
+    void *cobj;
+    MVMCBlob *blob;
+} MVMCStructBody_;
 
 union MVMCStructBody {
-    MVMCPointerBody parent_body;
-    struct {
-        void *cobj;
-        MVMCBlob *blob;
-    };
+    MVMCPointerBody POINTER;
+    MVMCStructBody_ STRUCT;
 };
+
+typedef struct {
+    MVMObject common;
+    MVMCStructBody body;
+} MVMCStruct_;
 
 union MVMCStruct {
-    MVMCPointer parent;
-    struct {
-        MVMObject common;
-        MVMCStructBody body;
-    };
+    MVMCPointer POINTER;
+    MVMCStruct_ STRUCT;
 };
+
+typedef struct {
+    void *cobj;
+    MVMCBlob *blob;
+} MVMCUnionBody_;
 
 union MVMCUnionBody {
-    MVMCPointerBody parent_body;
-    struct {
-        void *cobj;
-        MVMCBlob *blob;
-    };
+    MVMCPointerBody POINTER;
+    MVMCUnionBody_  UNION;
 };
+
+typedef struct {
+    MVMObject common;
+    MVMCUnionBody body;
+} MVMCUnion_;
 
 union MVMCUnion {
-    MVMCPointer parent;
-    struct {
-        MVMObject common;
-        MVMCUnionBody body;
-    };
+    MVMCPointer POINTER;
+    MVMCUnion_  UNION;
 };
 
-union MVMCFlexibleStructBody {
-    MVMCStructBody parent_body;
-    struct {
-        void *cobj;
-        MVMCBlob *blob;
-        MVMCArray *flexibles;
-    };
+typedef struct {
+    void *cobj;
+    MVMCBlob *blob;
+    MVMCArray *flexibles;
+} MVMCFlexStructBody_;
+
+union MVMCFlexStructBody {
+    MVMCPointerBody     POINTER;
+    MVMCStructBody_     STRUCT;
+    MVMCFlexStructBody_ FLEX_STRUCT;
 };
 
-union MVMCFlexibleStruct {
-    MVMCStruct parent;
-    struct {
-        MVMObject common;
-        MVMCFlexibleStructBody body;
-    };
+typedef struct {
+    MVMObject common;
+    MVMCFlexStructBody body;
+} MVMCFlexStruct_;
+
+union MVMCFlexStruct {
+    MVMCPointer     POINTER;
+    MVMCStruct_     STRUCT;
+    MVMCFlexStruct_ FLEX_STRUCT;
 };
 
 extern MVMREPROps MVM_REPR_CPointer;
+extern MVMREPROps MVM_REPR_CScalar;
 
 MVMREPROps * MVMCBlob_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCPointer_initialize(MVMThreadContext *tc);
@@ -140,4 +170,7 @@ MVMREPROps * MVMCScalar_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCArray_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCStruct_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCUnion_initialize(MVMThreadContext *tc);
-MVMREPROps * MVMCFlexibleStruct_initialize(MVMThreadContext *tc);
+MVMREPROps * MVMCFlexStruct_initialize(MVMThreadContext *tc);
+
+const MVMCScalarSpec * MVM_native_get_scalar_spec(MVMThreadContext *tc,
+        MVMint64 id);

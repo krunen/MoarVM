@@ -257,7 +257,7 @@ void MVM_repr_initialize_registry(MVMThreadContext *tc) {
     repr_registrar(tc, "MVMCArray", MVMCArray_initialize);
     repr_registrar(tc, "MVMCStruct", MVMCStruct_initialize);
     repr_registrar(tc, "MVMCUnion", MVMCUnion_initialize);
-    repr_registrar(tc, "MVMCFlexibleStruct", MVMCFlexibleStruct_initialize);
+    repr_registrar(tc, "MVMCFlexStruct", MVMCFlexStruct_initialize);
 }
 
 /* Get a representation's ID from its name. Note that the IDs may change so

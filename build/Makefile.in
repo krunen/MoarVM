@@ -121,7 +121,7 @@ OBJECTS = src/core/args@obj@ \
           src/native/CArray@obj@ \
           src/native/CStruct@obj@ \
           src/native/CUnion@obj@ \
-          src/native/CFlexibleStruct@obj@ \
+          src/native/CFlexStruct@obj@ \
           src/moarvm@obj@ \
           @platform@
 

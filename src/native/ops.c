@@ -33,7 +33,7 @@ MVMObject * MVM_native_blobptr(MVMThreadContext *tc, MVMObject *blob,
         case MVM_REPR_ID_CArray:
         case MVM_REPR_ID_CStruct:
         case MVM_REPR_ID_CUnion:
-        case MVM_REPR_ID_CFlexibleStruct:
+        case MVM_REPR_ID_CFlexStruct:
             type_rdata = STABLE(type)->REPR_data;
             type_size  = type_rdata ? *type_rdata : 0;
             break;
@@ -73,7 +73,7 @@ MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *src,
         case MVM_REPR_ID_CArray:
         case MVM_REPR_ID_CStruct:
         case MVM_REPR_ID_CUnion:
-        case MVM_REPR_ID_CFlexibleStruct:
+        case MVM_REPR_ID_CFlexStruct:
             body = &((MVMCPointer *)src)->body;
             cptr = (char *)body->cobj + offset;
             blob = body->blob;
@@ -90,7 +90,7 @@ MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *src,
         case MVM_REPR_ID_CArray:
         case MVM_REPR_ID_CStruct:
         case MVM_REPR_ID_CUnion:
-        case MVM_REPR_ID_CFlexibleStruct:
+        case MVM_REPR_ID_CFlexStruct:
             dest_rdata = STABLE(type)->REPR_data;
             dest_size = dest_rdata ? *dest_rdata : 0;
             break;
@@ -107,8 +107,8 @@ MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *src,
         uintptr_t value = (uintptr_t)cptr;
 
         if (value < lower || value + dest_size > upper)
-            MVM_exception_throw_adhoc(tc, "pointer cast targets range %" PRIxPTR
-                    "..%" PRIxPTR " overflowing blob range %" PRIxPTR "..%"
+            MVM_exception_throw_adhoc(tc, "pointer cast target range %" PRIxPTR
+                    "..%" PRIxPTR " overflows blob range %" PRIxPTR "..%"
                     PRIxPTR, value, value + dest_size, lower, upper);
     }
 

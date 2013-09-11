@@ -65,4 +65,4 @@ MVMREPROps * MVM_repr_get_by_name(MVMThreadContext *tc, MVMString *name);
 #define MVM_REPR_ID_CArray                  28
 #define MVM_REPR_ID_CStruct                 29
 #define MVM_REPR_ID_CUnion                  30
-#define MVM_REPR_ID_CFlexibleStruct         31
+#define MVM_REPR_ID_CFlexStruct             31
