@@ -30,10 +30,14 @@ enum {
 };
 
 struct MVMCScalarSpec {
+    /* size needs to come first as that's the expected
+     * REPR_data for any pointer type
+     */
     MVMuint64 size;
     MVMuint16 align;
+    MVMuint16 can_box;
     MVMuint16 id;
-    const char *name;
+    const char *cname;
 };
 
 struct MVMCBlobBody {
