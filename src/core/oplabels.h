@@ -495,5 +495,7 @@ static const void * const LABELS[] = {
     &&OP_rethrow,
     &&OP_bloballoc,
     &&OP_blobptr,
-    &&OP_ptrcast
+    &&OP_ptrcast,
+    &&OP_cpointer,
+    &&OP_cscalar
 };

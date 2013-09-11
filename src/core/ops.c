@@ -2978,9 +2978,21 @@ static MVMOpInfo MVM_op_infos[] = {
         4,
         { MVM_operand_write_reg | MVM_operand_obj, MVM_operand_read_reg | MVM_operand_obj, MVM_operand_read_reg | MVM_operand_obj, MVM_operand_read_reg | MVM_operand_int64 }
     },
+    {
+        MVM_OP_cpointer,
+        "cpointer",
+        2,
+        { MVM_operand_write_reg | MVM_operand_obj, MVM_operand_read_reg | MVM_operand_obj }
+    },
+    {
+        MVM_OP_cscalar,
+        "cscalar",
+        3,
+        { MVM_operand_write_reg | MVM_operand_obj, MVM_operand_read_reg | MVM_operand_obj, MVM_operand_int16 }
+    },
 };
 
-static unsigned short MVM_op_counts = 495;
+static unsigned short MVM_op_counts = 497;
 
 MVMOpInfo * MVM_op_get_op(unsigned short op) {
     if (op >= MVM_op_counts)

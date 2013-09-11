@@ -496,5 +496,7 @@
 #define MVM_OP_bloballoc 492
 #define MVM_OP_blobptr 493
 #define MVM_OP_ptrcast 494
+#define MVM_OP_cpointer 495
+#define MVM_OP_cscalar 496
 
 MVMOpInfo * MVM_op_get_op(unsigned short op);

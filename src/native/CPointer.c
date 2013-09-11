@@ -1,10 +1,9 @@
 #include "moarvm.h"
 
-static MVMREPROps this_repr;
 static MVMREPROps_Boxing box_funcs;
 
 static MVMObject * type_object_for(MVMThreadContext *tc, MVMObject *HOW) {
-    MVMSTable *st  = MVM_gc_allocate_stable(tc, &this_repr, HOW);
+    MVMSTable *st  = MVM_gc_allocate_stable(tc, &MVM_REPR_CPointer, HOW);
 
     MVMROOT(tc, st, {
         MVMObject *obj = MVM_gc_allocate_type_object(tc, st);
@@ -96,7 +95,7 @@ static void compose(MVMThreadContext *tc, MVMSTable *st, MVMObject *info) {
     /* noop */
 }
 
-static MVMREPROps this_repr = {
+MVMREPROps MVM_REPR_CPointer = {
     type_object_for,
     allocate,
     initialize,
@@ -135,5 +134,5 @@ static MVMREPROps_Boxing box_funcs = {
 };
 
 MVMREPROps * MVMCPointer_initialize(MVMThreadContext *tc) {
-    return &this_repr;
+    return &MVM_REPR_CPointer;
 }

@@ -529,3 +529,5 @@ rethrow             r(obj)
 bloballoc           w(obj) r(int64)
 blobptr             w(obj) r(obj) r(obj)
 ptrcast             w(obj) r(obj) r(obj) r(int64)
+cpointer            w(obj) r(obj)
+cscalar             w(obj) r(obj) int16

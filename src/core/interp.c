@@ -3372,6 +3372,21 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                 cur_op += 8;
                 goto NEXT;
             }
+            OP(cpointer): {
+                MVMObject *meta = GET_REG(cur_op, 2).o;
+                GET_REG(cur_op, 0).o = MVM_REPR_CPointer.type_object_for(
+                        tc, meta);
+                cur_op += 4;
+                goto NEXT;
+            }
+            OP(cscalar): {
+                MVMObject *meta = GET_REG(cur_op, 2).o;
+                MVMuint16  id   = GET_UI16(cur_op, 4);
+                MVM_exception_throw_adhoc(tc, "TODO");
+                /*GET_REG(cur_op, 0).o = ???; */
+                cur_op += 6;
+                goto NEXT;
+            }
 #if !MVM_CGOTO
             default:
                 MVM_panic(MVM_exitcode_invalidopcode, "Invalid opcode executed (corrupt bytecode stream?) opcode %u", *(cur_op-2));
