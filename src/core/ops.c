@@ -2990,9 +2990,15 @@ static MVMOpInfo MVM_op_infos[] = {
         3,
         { MVM_operand_write_reg | MVM_operand_obj, MVM_operand_read_reg | MVM_operand_obj, MVM_operand_int16 }
     },
+    {
+        MVM_OP_cscalar_decont_i,
+        "cscalar_decont_i",
+        2,
+        { MVM_operand_write_reg | MVM_operand_int64, MVM_operand_read_reg | MVM_operand_obj }
+    },
 };
 
-static unsigned short MVM_op_counts = 497;
+static unsigned short MVM_op_counts = 498;
 
 MVMOpInfo * MVM_op_get_op(unsigned short op) {
     if (op >= MVM_op_counts)

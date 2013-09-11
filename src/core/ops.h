@@ -498,5 +498,6 @@
 #define MVM_OP_ptrcast 494
 #define MVM_OP_cpointer 495
 #define MVM_OP_cscalar 496
+#define MVM_OP_cscalar_decont_i 497
 
 MVMOpInfo * MVM_op_get_op(unsigned short op);

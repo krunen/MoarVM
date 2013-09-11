@@ -67,6 +67,8 @@ class QAST::MASTCompiler {
             elsif $kind == $MVM_reg_num64 { @arr := @!nums; $type := num }
             elsif $kind == $MVM_reg_str   { @arr := @!strs; $type := str }
             elsif $kind == $MVM_reg_obj   { @arr := @!objs; $type := NQPMu }
+            # FIXME: use actual int16 reg
+            elsif $kind == $MVM_reg_int16 { @arr := @!ints; $type := int }
             else { nqp::die("unhandled reg kind $kind") }
 
             my $reg;
@@ -93,6 +95,8 @@ class QAST::MASTCompiler {
             return nqp::push(@!nums, $reg) if $kind == $MVM_reg_num64;
             return nqp::push(@!strs, $reg) if $kind == $MVM_reg_str;
             return nqp::push(@!objs, $reg) if $kind == $MVM_reg_obj;
+            # FIXME: proper int16 regs
+            return nqp::push(@!ints, $reg) if $kind == $MVM_reg_int16;
             nqp::die("unhandled reg kind $kind");
         }
     }
@@ -277,6 +281,8 @@ class QAST::MASTCompiler {
         if $got == $desired {
             # Nothing to do.
         }
+        # FIXME: hardcode for now (OK on little-endian)
+        elsif $got == 4 && $desired == 2 {}
         elsif $desired == $MVM_reg_void {
             $reg := MAST::VOID;
             $got := $MVM_reg_void;
