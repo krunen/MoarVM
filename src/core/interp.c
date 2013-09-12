@@ -3403,7 +3403,7 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
             }
             OP(csizeof): {
                 MVMObject *obj = GET_REG(cur_op, 2).o;
-                GET_REG(cur_op, 0).i64 = MVM_native_sizeof(tc, obj);
+                GET_REG(cur_op, 0).i64 = MVM_native_csizeof(tc, obj);
                 cur_op += 4;
                 goto NEXT;
             }

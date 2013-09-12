@@ -124,7 +124,7 @@ MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *src,
     return (MVMObject *)dest;
 }
 
-MVMuint64 MVM_native_sizeof(MVMThreadContext *tc, MVMObject *ptr) {
+MVMuint64 MVM_native_csizeof(MVMThreadContext *tc, MVMObject *ptr) {
     MVMuint16 id = REPR(ptr)->ID;
     MVMuint64 *size = STABLE(ptr)->REPR_data;
 
