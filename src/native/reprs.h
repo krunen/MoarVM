@@ -208,6 +208,7 @@ union MVMCFlexStruct {
 MVMREPROps * MVMBlob_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMPtr_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCScalar_initialize(MVMThreadContext *tc);
+MVMREPROps * MVMCPointer_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCArray_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCStruct_initialize(MVMThreadContext *tc);
 MVMREPROps * MVMCUnion_initialize(MVMThreadContext *tc);
