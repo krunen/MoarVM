@@ -1379,6 +1379,7 @@ QAST::MASTOperations.add_core_moarop_mapping('ptrcast', 'ptrcast');
 QAST::MASTOperations.add_core_moarop_mapping('ptrtype', 'ptrtype');
 QAST::MASTOperations.add_core_moarop_mapping('cscalar', 'cscalar');
 QAST::MASTOperations.add_core_moarop_mapping('cscalar_decont_i', 'cscalar_decont_i');
+QAST::MASTOperations.add_core_moarop_mapping('csizeof', 'csizeof');
 
 
 # Constant mapping.

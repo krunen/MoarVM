@@ -123,3 +123,27 @@ MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *src,
 
     return (MVMObject *)dest;
 }
+
+MVMuint64 MVM_native_sizeof(MVMThreadContext *tc, MVMObject *ptr) {
+    MVMuint16 id = REPR(ptr)->ID;
+    MVMuint64 *size = STABLE(ptr)->REPR_data;
+
+    switch (id) {
+        case MVM_REPR_ID_CScalar:
+        case MVM_REPR_ID_CPointer:
+        case MVM_REPR_ID_CArray:
+        case MVM_REPR_ID_CStruct:
+        case MVM_REPR_ID_CUnion:
+        case MVM_REPR_ID_CFlexStruct:
+            break;
+
+        default:
+            MVM_exception_throw_adhoc(tc, "can determine size of C types");
+    }
+
+    if (!size)
+        MVM_exception_throw_adhoc(tc,
+                "can only determine size of composed types");
+
+    return *size;
+}

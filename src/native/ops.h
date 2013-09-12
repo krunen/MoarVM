@@ -6,5 +6,4 @@ MVMObject * MVM_native_blobptr(MVMThreadContext *tc, MVMObject *blob,
 MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *src,
         MVMObject *type, MVMint64 offset);
 
-MVMObject * MVM_native_cscalar(MVMThreadContext *tc, MVMObject *meta,
-        MVMuint16 id);
+MVMuint64 MVM_native_sizeof(MVMThreadContext *tc, MVMObject *ptr);

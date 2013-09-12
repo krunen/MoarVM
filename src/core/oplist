@@ -532,3 +532,4 @@ ptrcast             w(obj) r(obj) r(obj) r(int64)
 ptrtype             w(obj)
 cscalar             w(obj) int16
 cscalar_decont_i    w(int64) r(obj)
+csizeof             w(int64) r(obj)
