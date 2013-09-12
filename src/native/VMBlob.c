@@ -15,7 +15,7 @@ static MVMStorageSpec get_storage_spec(MVMThreadContext *tc, MVMSTable *st) {
 static void gc_mark(MVMThreadContext *tc, MVMSTable *st, void *data,
         MVMGCWorklist *worklist) {
     MVMBlobBody *body = data;
-    MVMuint64  *refmap = body->refmap;
+    MVMuint64 *refmap = body->refmap;
     char *cursor, *end;
     MVMuint64 i;
 
@@ -25,9 +25,18 @@ static void gc_mark(MVMThreadContext *tc, MVMSTable *st, void *data,
     cursor = body->storage;
     end    = body->storage + body->size;
 
-    for (i = 0; cursor < end; cursor += PTR_ALIGN, i++)
-        if (refmap[i / 64] >> i % 64 & 1)
-            MVM_gc_worklist_add(tc, worklist, cursor);
+    for (i = 0; cursor < end; i++) {
+        MVMuint64 mask, word = refmap[i];
+
+        if (!word) {
+            cursor += 64 * PTR_ALIGN;
+            continue;
+        }
+
+        for (mask = 1; mask; mask <<= 1, cursor += PTR_ALIGN)
+            if (word & mask)
+                MVM_gc_worklist_add(tc, worklist, cursor);
+    }
 }
 
 static void gc_free(MVMThreadContext *tc, MVMObject *obj) {
