@@ -496,7 +496,7 @@ static const void * const LABELS[] = {
     &&OP_bloballoc,
     &&OP_blobptr,
     &&OP_ptrcast,
-    &&OP_cpointer,
+    &&OP_ptrtype,
     &&OP_cscalar,
     &&OP_cscalar_decont_i
 };

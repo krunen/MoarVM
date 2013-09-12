@@ -152,7 +152,8 @@ struct MVMInstance {
     uv_mutex_t       mutex_loaded_compunits;
 
     /* Cache type objects for native C types with fixed REPR_data */
-    MVMObject *CBlob_WHAT;
-    MVMObject *CPointer_WHAT;
+    MVMObject *VMBlob_WHAT;
+    MVMObject *VMPtr_WHAT;
     MVMObject *CScalar_WHATs[MVM_CSCALAR_TYPE_COUNT];
+    MVMObject *CPointer_WHAT;
 };

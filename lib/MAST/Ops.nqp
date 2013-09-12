@@ -2699,7 +2699,7 @@ BEGIN {
     'bloballoc', 492,
     'blobptr', 493,
     'ptrcast', 494,
-    'cpointer', 495,
+    'ptrtype', 495,
     'cscalar', 496,
     'cscalar_decont_i', 497);
     MAST::Ops.WHO<@names> := nqp::list('no_op',
@@ -3197,7 +3197,7 @@ BEGIN {
     'bloballoc',
     'blobptr',
     'ptrcast',
-    'cpointer',
+    'ptrtype',
     'cscalar',
     'cscalar_decont_i');
 }

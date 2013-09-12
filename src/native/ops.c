@@ -2,9 +2,9 @@
 #include "native/ops.h"
 
 MVMObject * MVM_native_bloballoc(MVMThreadContext *tc, MVMuint64 size) {
-    MVMObject    *WHAT = tc->instance->CBlob_WHAT;
-    MVMObject    *blob = MVM_gc_allocate_object(tc, STABLE(WHAT));
-    MVMCBlobBody *body = &((MVMCBlob *)blob)->body;
+    MVMObject     *WHAT = tc->instance->VMBlob_WHAT;
+    MVMObject     *blob = MVM_gc_allocate_object(tc, STABLE(WHAT));
+    MVMBlobBody *body = &((MVMBlob *)blob)->body;
 
     body->storage = malloc(size);
     body->size    = size;
@@ -15,21 +15,22 @@ MVMObject * MVM_native_bloballoc(MVMThreadContext *tc, MVMuint64 size) {
 
 MVMObject * MVM_native_blobptr(MVMThreadContext *tc, MVMObject *blob,
         MVMObject *type) {
-    MVMuint32    blob_id = REPR(blob)->ID;
-    MVMuint32    type_id = REPR(type)->ID;
-    MVMuint64    blob_size;
-    MVMuint64   *type_rdata, type_size;
-    MVMCPointer *ptr;
+    MVMuint32  blob_id = REPR(blob)->ID;
+    MVMuint32  type_id = REPR(type)->ID;
+    MVMuint64  blob_size;
+    MVMuint64 *type_rdata, type_size;
+    MVMPtr *ptr;
 
-    if (blob_id != MVM_REPR_ID_CBlob)
+    if (blob_id != MVM_REPR_ID_VMBlob)
         MVM_exception_throw_adhoc(tc, "expected blob repr %" PRIu32
                 " but got %" PRIu32, blob_id, type_id);
 
-    blob_size = ((MVMCBlob *)blob)->body.size;
+    blob_size = ((MVMBlob *)blob)->body.size;
 
     switch (type_id) {
-        case MVM_REPR_ID_CPointer:
+        case MVM_REPR_ID_VMPtr:
         case MVM_REPR_ID_CScalar:
+        case MVM_REPR_ID_CPointer:
         case MVM_REPR_ID_CArray:
         case MVM_REPR_ID_CStruct:
         case MVM_REPR_ID_CUnion:
@@ -49,9 +50,9 @@ MVMObject * MVM_native_blobptr(MVMThreadContext *tc, MVMObject *blob,
                 " of size %" PRIu64, blob_size, type_id, type_size);
 
     MVMROOT(tc, blob, {
-        ptr = (MVMCPointer *)MVM_repr_alloc_init(tc, type);
-        ptr->body.cobj = ((MVMCBlob *)blob)->body.storage;
-        ptr->body.blob = (MVMCBlob *)blob;
+        ptr = (MVMPtr *)MVM_repr_alloc_init(tc, type);
+        ptr->body.cobj = ((MVMBlob *)blob)->body.storage;
+        ptr->body.blob = (MVMBlob *)blob;
     });
 
     return (MVMObject *)ptr;
@@ -62,19 +63,20 @@ MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *src,
     MVMuint32  src_id    = REPR(src)->ID;
     MVMuint32  dest_id   = REPR(type)->ID;
     MVMuint64 *dest_rdata, dest_size;
-    MVMCPointer *dest;
-    MVMCPointerBody *body;
-    MVMCBlob *blob;
+    MVMPtr *dest;
+    MVMPtrBody *body;
+    MVMBlob *blob;
     void *cptr;
 
     switch (src_id) {
-        case MVM_REPR_ID_CPointer:
+        case MVM_REPR_ID_VMPtr:
         case MVM_REPR_ID_CScalar:
+        case MVM_REPR_ID_CPointer:
         case MVM_REPR_ID_CArray:
         case MVM_REPR_ID_CStruct:
         case MVM_REPR_ID_CUnion:
         case MVM_REPR_ID_CFlexStruct:
-            body = &((MVMCPointer *)src)->body;
+            body = &((MVMPtr *)src)->body;
             cptr = (char *)body->cobj + offset;
             blob = body->blob;
             break;
@@ -85,8 +87,9 @@ MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *src,
     }
 
     switch (dest_id) {
-        case MVM_REPR_ID_CPointer:
+        case MVM_REPR_ID_VMPtr:
         case MVM_REPR_ID_CScalar:
+        case MVM_REPR_ID_CPointer:
         case MVM_REPR_ID_CArray:
         case MVM_REPR_ID_CStruct:
         case MVM_REPR_ID_CUnion:
@@ -113,9 +116,9 @@ MVMObject * MVM_native_ptrcast(MVMThreadContext *tc, MVMObject *src,
     }
 
     MVMROOT(tc, blob, {
-        dest = (MVMCPointer *)MVM_repr_alloc_init(tc, type);
+        dest = (MVMPtr *)MVM_repr_alloc_init(tc, type);
         dest->body.cobj = cptr;
-        dest->body.blob = (MVMCBlob *)blob;
+        dest->body.blob = (MVMBlob *)blob;
     });
 
     return (MVMObject *)dest;

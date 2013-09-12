@@ -2979,8 +2979,8 @@ static MVMOpInfo MVM_op_infos[] = {
         { MVM_operand_write_reg | MVM_operand_obj, MVM_operand_read_reg | MVM_operand_obj, MVM_operand_read_reg | MVM_operand_obj, MVM_operand_read_reg | MVM_operand_int64 }
     },
     {
-        MVM_OP_cpointer,
-        "cpointer",
+        MVM_OP_ptrtype,
+        "ptrtype",
         1,
         { MVM_operand_write_reg | MVM_operand_obj }
     },

@@ -14,7 +14,7 @@ static MVMStorageSpec get_storage_spec(MVMThreadContext *tc, MVMSTable *st) {
 
 static void gc_mark(MVMThreadContext *tc, MVMSTable *st, void *data,
         MVMGCWorklist *worklist) {
-    MVMCBlobBody *body = data;
+    MVMBlobBody *body = data;
     MVMuint64  *refmap = body->refmap;
     char *cursor, *end;
     MVMuint64 i;
@@ -31,7 +31,7 @@ static void gc_mark(MVMThreadContext *tc, MVMSTable *st, void *data,
 }
 
 static void gc_free(MVMThreadContext *tc, MVMObject *obj) {
-    MVMCBlobBody *body = &((MVMCBlob *)obj)->body;
+    MVMBlobBody *body = &((MVMBlob *)obj)->body;
 
     MVM_checked_free_null(body->storage);
     MVM_checked_free_null(body->refmap);
@@ -66,17 +66,18 @@ static MVMREPROps this_repr = {
     0, /* refs_frames */
 };
 
-MVMREPROps * MVMCBlob_initialize(MVMThreadContext *tc) {
+MVMREPROps * MVMBlob_initialize(MVMThreadContext *tc) {
     MVMSTable *st = MVM_gc_allocate_stable(tc, &this_repr, NULL);
 
     MVMROOT(tc, st, {
         MVMObject *WHAT = MVM_gc_allocate_type_object(tc, st);
-        tc->instance->CBlob_WHAT = WHAT;
+        tc->instance->VMBlob_WHAT = WHAT;
         MVM_ASSIGN_REF(tc, st, st->WHAT, WHAT);
-        st->size = sizeof(MVMCBlob);
+        st->size = sizeof(MVMBlob);
     });
 
-    MVM_gc_root_add_permanent(tc, (MVMCollectable **)&tc->instance->CBlob_WHAT);
+    MVM_gc_root_add_permanent(tc,
+            (MVMCollectable **)&tc->instance->VMBlob_WHAT);
 
     return &this_repr;
 }

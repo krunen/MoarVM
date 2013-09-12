@@ -529,6 +529,6 @@ rethrow             r(obj)
 bloballoc           w(obj) r(int64)
 blobptr             w(obj) r(obj) r(obj)
 ptrcast             w(obj) r(obj) r(obj) r(int64)
-cpointer            w(obj)
+ptrtype             w(obj)
 cscalar             w(obj) int16
 cscalar_decont_i    w(int64) r(obj)

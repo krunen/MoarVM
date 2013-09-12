@@ -62,7 +62,7 @@ static const MVMCScalarSpec SPECS[MVM_CSCALAR_TYPE_COUNT] = {
 static MVMREPROps this_repr;
 static MVMContainerSpec container_spec;
 
-const MVMCScalarSpec * MVM_native_get_scalar_spec(MVMThreadContext *tc,
+const MVMCScalarSpec * MVM_native_get_cscalar_spec(MVMThreadContext *tc,
         MVMint64 id) {
     if (id < 0 || id >= MVM_CSCALAR_TYPE_COUNT)
         MVM_exception_throw_adhoc(tc, "illegal CScalar id %" PRIi64, id);
@@ -136,7 +136,7 @@ static void compose(MVMThreadContext *tc, MVMSTable *st, MVMObject *info) {
         MVM_exception_throw_adhoc(tc, "can only use arguments "
                 "that can unbox to int in CScalar composition");
 
-    st->REPR_data = (void *)MVM_native_get_scalar_spec(tc,
+    st->REPR_data = (void *)MVM_native_get_cscalar_spec(tc,
             MVM_repr_get_int(tc, info));
 }
 
@@ -278,7 +278,7 @@ static void do_store(MVMThreadContext *tc, MVMuint16 id, void *ptr,
 
 void store_unchecked(MVMThreadContext *tc, MVMObject *cont, MVMObject *obj) {
     const MVMCScalarSpec *spec = STABLE(cont)->REPR_data;
-    void *ptr = ((MVMCPointer *)cont)->body.cobj;
+    void *ptr = ((MVMPtr *)cont)->body.cobj;
 
     do_store(tc, spec->id, ptr, obj);
 }
@@ -286,7 +286,7 @@ void store_unchecked(MVMThreadContext *tc, MVMObject *cont, MVMObject *obj) {
 void store(MVMThreadContext *tc, MVMObject *cont, MVMObject *obj) {
     const MVMCScalarSpec *scalar_spec = get_spec_checked(tc, cont);
     MVMStorageSpec obj_spec = REPR(obj)->get_storage_spec(tc, STABLE(obj));
-    void *ptr = ((MVMCPointer *)cont)->body.cobj;
+    void *ptr = ((MVMPtr *)cont)->body.cobj;
 
     if (!(scalar_spec->can_box & obj_spec.can_box))
         MVM_exception_throw_adhoc(tc, "cannot store type %" PRIu16
@@ -324,7 +324,7 @@ MVMREPROps * MVMCScalar_initialize(MVMThreadContext *tc) {
             MVMObject *WHAT = MVM_gc_allocate_type_object(tc, st);
             tc->instance->CScalar_WHATs[id] = WHAT;
             MVM_ASSIGN_REF(tc, st, st->WHAT, WHAT);
-            st->size = sizeof(MVMCPointer);
+            st->size = sizeof(MVMPtr);
             st->container_spec = &container_spec;
             st->REPR_data = (void *)(SPECS + id);
         });

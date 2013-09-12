@@ -3372,8 +3372,8 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                 cur_op += 8;
                 goto NEXT;
             }
-            OP(cpointer): {
-                GET_REG(cur_op, 0).o = tc->instance->CPointer_WHAT;
+            OP(ptrtype): {
+                GET_REG(cur_op, 0).o = tc->instance->VMPtr_WHAT;
                 cur_op += 2;
                 goto NEXT;
             }
@@ -3396,7 +3396,7 @@ void MVM_interp_run(MVMThreadContext *tc, void (*initial_invoke)(MVMThreadContex
                     MVM_exception_throw_adhoc(tc, "CScalar type not composed");
                 if (spec->id != MVM_CSCALAR_INT)
                     MVM_exception_throw_adhoc(tc, "TODO");
-                int *ptr = ((MVMCPointer *)cont)->body.cobj;
+                int *ptr = ((MVMPtr *)cont)->body.cobj;
                 GET_REG(cur_op, 0).i64 = *ptr;
                 cur_op += 4;
                 goto NEXT;
