@@ -185,7 +185,7 @@ static void fetch(MVMThreadContext *tc, MVMObject *cont, MVMRegister *res) {
     const MVMCScalarSpec *spec = get_spec_checked(tc, cont);
     void *ptr = ((MVMPtr *)cont)->body.cobj;
     MVMuint16 id = spec->id;
-    union { intmax_t i; uintmax_t u; long double n; } value;
+    union { intmax_t i; uintmax_t u; long double n; void *p; } value;
     MVMREPROps *repr;
     MVMObject *type, *box;
 
@@ -300,6 +300,9 @@ static void fetch(MVMThreadContext *tc, MVMObject *cont, MVMRegister *res) {
             goto box_n;
 
         case MVM_CSCALAR_PTR:
+            value.p = *(void **)ptr;
+            goto box_p;
+
         case MVM_CSCALAR_FPTR:
             MVM_exception_throw_adhoc(tc, "TODO");
 
@@ -321,6 +324,16 @@ box_n:
     type = repr->type_object_for(tc, NULL);
     box  = MVM_repr_alloc_init(tc, type);
     MVM_repr_set_num(tc, box, value.n);
+    res->o = box;
+    return;
+
+box_p:
+    type = tc->instance->VMPtr_WHAT;
+    MVMROOT(tc, cont, {
+        box = MVM_repr_alloc_init(tc, type);
+        ((MVMPtr *)box)->body.cobj = ptr;
+        ((MVMPtr *)box)->body.blob = ((MVMPtr *)cont)->body.blob;
+    });
     res->o = box;
     return;
 }
@@ -435,6 +448,9 @@ static void do_store(MVMThreadContext *tc, MVMuint16 id, void *ptr,
             break;
 
         case MVM_CSCALAR_PTR:
+            *(void **)ptr = ((MVMPtr *)obj)->body.cobj;
+            break;
+
         case MVM_CSCALAR_FPTR:
             MVM_exception_throw_adhoc(tc, "TODO");
 
@@ -456,9 +472,25 @@ static void store(MVMThreadContext *tc, MVMObject *cont, MVMObject *obj) {
     MVMStorageSpec obj_spec = REPR(obj)->get_storage_spec(tc, STABLE(obj));
     void *ptr = ((MVMPtr *)cont)->body.cobj;
 
-    if (!(scalar_spec->can_box & obj_spec.can_box))
-        MVM_exception_throw_adhoc(tc, "cannot store type %" PRIu16
-                " in CScalar of type %s", obj_spec.can_box, scalar_spec->cname);
+    if (scalar_spec->can_box & obj_spec.can_box); /* OK */
+    else if (scalar_spec->id == MVM_CSCALAR_PTR) {
+        switch (REPR(obj)->ID) {
+            case MVM_REPR_ID_VMPtr:
+            case MVM_REPR_ID_CScalar:
+            case MVM_REPR_ID_CPointer:
+            case MVM_REPR_ID_CArray:
+            case MVM_REPR_ID_CStruct:
+            case MVM_REPR_ID_CUnion:
+            case MVM_REPR_ID_CFlexStruct:
+                break;
+
+            default:
+                MVM_exception_throw_adhoc(tc,
+                        "cannot store non-pointer in CScalar of type void *");
+        }
+    }
+    else MVM_exception_throw_adhoc(tc, "cannot store type %" PRIu16
+            " in CScalar of type %s", obj_spec.can_box, scalar_spec->cname);
 
     if (!ptr)
         MVM_exception_throw_adhoc(tc, "cannot store into null CScalar");
