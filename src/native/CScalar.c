@@ -190,9 +190,86 @@ static void fetch(MVMThreadContext *tc, MVMObject *cont, MVMRegister *res) {
 static void do_store(MVMThreadContext *tc, MVMuint16 id, void *ptr,
         MVMObject *obj) {
     switch (id) {
+        case MVM_CSCALAR_VOID:
+        case MVM_CSCALAR_FPTR:
+            MVM_exception_throw_adhoc(tc,
+                    "cannot store into CScalar of type %s", SPECS[id].cname);
+            break;
+
+        case MVM_CSCALAR_CHAR:
+            *(signed char *)ptr = (signed char)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_UCHAR:
+            *(unsigned char *)ptr = (unsigned char)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_SHORT:
+            *(short *)ptr = (short)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_USHORT:
+            *(unsigned short *)ptr = (unsigned short)MVM_repr_get_int(tc, obj);
+            break;
+
         case MVM_CSCALAR_INT:
             *(int *)ptr = (int)MVM_repr_get_int(tc, obj);
             break;
+
+        case MVM_CSCALAR_UINT:
+            *(unsigned int *)ptr = (unsigned int)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_LONG:
+            *(long *)ptr = (long)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_ULONG:
+            *(unsigned long *)ptr = (unsigned long)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_LLONG:
+            *(long long *)ptr = (long long)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_ULLONG:
+            *(unsigned long long *)ptr = (unsigned long long)MVM_repr_get_int(
+                    tc, obj);
+            break;
+
+        case MVM_CSCALAR_INT8:
+            *(int8_t *)ptr = (int8_t)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_UINT8:
+            *(uint8_t *)ptr = (uint8_t)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_INT16:
+            *(int16_t *)ptr = (int16_t)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_UINT16:
+            *(uint16_t *)ptr = (uint16_t)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_INT32:
+            *(int32_t *)ptr = (int32_t)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_UINT32:
+            *(uint32_t *)ptr = (uint32_t)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_INT64:
+            *(int64_t *)ptr = (int64_t)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_UINT64:
+            *(uint64_t *)ptr = (uint64_t)MVM_repr_get_int(tc, obj);
+            break;
+
+        /* TODO */
 
         default:
             MVM_exception_throw_adhoc(tc, "invalid CScalar id %" PRIu16, id);
