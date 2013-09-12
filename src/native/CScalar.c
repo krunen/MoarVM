@@ -191,9 +191,8 @@ static void do_store(MVMThreadContext *tc, MVMuint16 id, void *ptr,
         MVMObject *obj) {
     switch (id) {
         case MVM_CSCALAR_VOID:
-        case MVM_CSCALAR_FPTR:
             MVM_exception_throw_adhoc(tc,
-                    "cannot store into CScalar of type %s", SPECS[id].cname);
+                    "cannot store into CScalar of type void");
             break;
 
         case MVM_CSCALAR_CHAR:
@@ -269,7 +268,37 @@ static void do_store(MVMThreadContext *tc, MVMuint16 id, void *ptr,
             *(uint64_t *)ptr = (uint64_t)MVM_repr_get_int(tc, obj);
             break;
 
-        /* TODO */
+        case MVM_CSCALAR_INTPTR:
+            *(intptr_t *)ptr = (intptr_t)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_UINTPTR:
+            *(uintptr_t *)ptr = (uintptr_t)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_INTMAX:
+            *(intmax_t *)ptr = (intmax_t)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_UINTMAX:
+            *(uintmax_t *)ptr = (uintmax_t)MVM_repr_get_int(tc, obj);
+            break;
+
+        case MVM_CSCALAR_FLOAT:
+            *(float *)ptr = (float)MVM_repr_get_num(tc, obj);
+            break;
+
+        case MVM_CSCALAR_DOUBLE:
+            *(double *)ptr = (double)MVM_repr_get_num(tc, obj);
+            break;
+
+        case MVM_CSCALAR_LDOUBLE:
+            *(long double *)ptr = (long double)MVM_repr_get_num(tc, obj);
+            break;
+
+        case MVM_CSCALAR_PTR:
+        case MVM_CSCALAR_FPTR:
+            MVM_exception_throw_adhoc(tc, "TODO");
 
         default:
             MVM_exception_throw_adhoc(tc, "invalid CScalar id %" PRIu16, id);
