@@ -46,7 +46,7 @@ MVMObject * MVM_native_blobptr(MVMThreadContext *tc, MVMObject *blob,
 
     if (type_size > blob_size)
         MVM_exception_throw_adhoc(tc, "blob of size %" PRIu64
-                "is too small for pointer repr %" PRIu32
+                " is too small for pointer repr %" PRIu32
                 " of size %" PRIu64, blob_size, type_id, type_size);
 
     MVMROOT(tc, blob, {
