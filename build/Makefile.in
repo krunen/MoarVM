@@ -265,6 +265,8 @@ all: moarvm@exe@
 
 lib: @moar@
 
+build: $(OBJECTS)
+
 help:
 	@$(CAT) build/help.txt
 
