@@ -3,60 +3,144 @@
 #define ALIGNOF(type) \
     ((MVMuint16)offsetof(struct { char dummy; type member; }, member))
 
+#define DEF_FETCH(NAME, CTYPE, VMTYPE) static MVMObject * fetch_ ## NAME( \
+        MVMThreadContext *tc, void *ptr) { \
+    CTYPE value = *(CTYPE *)ptr; \
+    MVMREPROps *repr = MVM_repr_get_by_id(tc, MVM_REPR_ID_P6 ## VMTYPE); \
+    MVMObject  *type = repr->type_object_for(tc, NULL); \
+    MVMObject  *box  = MVM_repr_alloc_init(tc, type); \
+    MVM_repr_set_ ## VMTYPE(tc, box, (MVM ## VMTYPE ## 64)value); \
+    return box; \
+}
+
+#define DEF_STORE(NAME, CTYPE, VMTYPE) static void store_ ## NAME( \
+        MVMThreadContext *tc, void *ptr, MVMObject *obj) { \
+    *(CTYPE *)ptr = (CTYPE)MVM_repr_get_ ## VMTYPE(tc, obj); \
+}
+
+#define INIT_SPEC(NAME, BIGNAME, CTYPE, BIGVMTYPE) { \
+    sizeof (CTYPE), \
+    ALIGNOF(CTYPE), \
+    MVM_STORAGE_SPEC_CAN_BOX_ ## BIGVMTYPE, \
+    MVM_CSCALAR_ ## BIGNAME, \
+    #CTYPE, \
+    fetch_ ## NAME, \
+    store_ ## NAME \
+}
+
 typedef void func(void);
 
+static MVMObject * fetch_void(MVMThreadContext *tc, void *ptr) {
+    MVM_exception_throw_adhoc(tc, "cannot fetch from CScalar of type void");
+}
+
+DEF_FETCH(char, signed char, int)
+DEF_FETCH(uchar, unsigned char, int)
+DEF_FETCH(short, short, int)
+DEF_FETCH(ushort, unsigned short, int)
+DEF_FETCH(int, int, int)
+DEF_FETCH(uint, unsigned int, int)
+DEF_FETCH(long, long, int)
+DEF_FETCH(ulong, unsigned long, int)
+DEF_FETCH(llong, long long, int)
+DEF_FETCH(ullong, unsigned long long, int)
+DEF_FETCH(int8, int8_t, int)
+DEF_FETCH(uint8, uint8_t, int)
+DEF_FETCH(int16, int16_t, int)
+DEF_FETCH(uint16, uint16_t, int)
+DEF_FETCH(int32, int32_t, int)
+DEF_FETCH(uint32, uint32_t, int)
+DEF_FETCH(int64, int64_t, int)
+DEF_FETCH(uint64, uint64_t, int)
+DEF_FETCH(intptr, intptr_t, int)
+DEF_FETCH(uintptr, uintptr_t, int)
+DEF_FETCH(intmax, intmax_t, int)
+DEF_FETCH(uintmax, uintmax_t, int)
+DEF_FETCH(float, float, num)
+DEF_FETCH(double, double, num)
+DEF_FETCH(ldouble, long double, num)
+
+static MVMObject * fetch_ptr(MVMThreadContext *tc, void *ptr) {
+    void *value = *(void **)ptr;
+    MVMObject *box = MVM_repr_alloc_init(tc, tc->instance->VMPtr_WHAT);
+
+    ((MVMPtr *)box)->body.cobj = value;
+    return box;
+}
+
+static MVMObject * fetch_fptr(MVMThreadContext *tc, void *ptr) {
+    MVM_exception_throw_adhoc(tc, "TODO");
+}
+
+static void store_void(MVMThreadContext *tc, void *ptr, MVMObject *obj) {
+    MVM_exception_throw_adhoc(tc, "cannot store into CScalar of type void");
+}
+
+DEF_STORE(char, signed char, int)
+DEF_STORE(uchar, unsigned char, int)
+DEF_STORE(short, short, int)
+DEF_STORE(ushort, unsigned short, int)
+DEF_STORE(int, int, int)
+DEF_STORE(uint, unsigned int, int)
+DEF_STORE(long, long, int)
+DEF_STORE(ulong, unsigned long, int)
+DEF_STORE(llong, long long, int)
+DEF_STORE(ullong, unsigned long long, int)
+DEF_STORE(int8, int8_t, int)
+DEF_STORE(uint8, uint8_t, int)
+DEF_STORE(int16, int16_t, int)
+DEF_STORE(uint16, uint16_t, int)
+DEF_STORE(int32, int32_t, int)
+DEF_STORE(uint32, uint32_t, int)
+DEF_STORE(int64, int64_t, int)
+DEF_STORE(uint64, uint64_t, int)
+DEF_STORE(intptr, intptr_t, int)
+DEF_STORE(uintptr, uintptr_t, int)
+DEF_STORE(intmax, intmax_t, int)
+DEF_STORE(uintmax, uintmax_t, int)
+DEF_STORE(float, float, num)
+DEF_STORE(double, double, num)
+DEF_STORE(ldouble, long double, num)
+
+static void store_ptr(MVMThreadContext *tc, void *ptr, MVMObject *obj) {
+    *(void **)ptr = ((MVMPtr *)obj)->body.cobj;
+}
+
+static void store_fptr(MVMThreadContext *tc, void *ptr, MVMObject *obj) {
+    MVM_exception_throw_adhoc(tc, "TODO");
+}
+
 static const MVMCScalarSpec SPECS[MVM_CSCALAR_TYPE_COUNT] = {
-    { 0, 0, 0, MVM_CSCALAR_VOID, "void" },
-    { 1, 1, MVM_STORAGE_SPEC_CAN_BOX_INT, MVM_CSCALAR_CHAR, "signed char" },
-    { 1, 1, MVM_STORAGE_SPEC_CAN_BOX_INT, MVM_CSCALAR_UCHAR, "unsigned char" },
-    { sizeof (short), ALIGNOF(short), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_SHORT, "short" },
-    { sizeof (short), ALIGNOF(short), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_USHORT, "unsigned short" },
-    { sizeof (int), ALIGNOF(int), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_INT, "int" },
-    { sizeof (int), ALIGNOF(int), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_UINT, "unsigned int" },
-    { sizeof (long), ALIGNOF(long), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_LONG, "long" },
-    { sizeof (long), ALIGNOF(long), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_ULONG, "unsigned long" },
-    { sizeof (long long), ALIGNOF(long long), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_LLONG, "long long" },
-    { sizeof (long long), ALIGNOF(long long), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_ULLONG, "unsigned long long" },
-    { sizeof (int8_t), ALIGNOF(int8_t), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_INT8, "int8_t" },
-    { sizeof (int8_t), ALIGNOF(int8_t), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_UINT8, "uint8_t" },
-    { sizeof (int16_t), ALIGNOF(int16_t), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_INT16, "int16_t" },
-    { sizeof (int16_t), ALIGNOF(int16_t), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_UINT16, "uint16_t" },
-    { sizeof (int32_t), ALIGNOF(int32_t), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_INT32, "int32_t" },
-    { sizeof (int32_t), ALIGNOF(int32_t), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_UINT32, "uint32_t" },
-    { sizeof (int64_t), ALIGNOF(int64_t), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_INT64, "int64_t" },
-    { sizeof (int64_t), ALIGNOF(int64_t), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_UINT64, "uint64_t" },
-    { sizeof (intptr_t), ALIGNOF(intptr_t), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_INTPTR, "intptr_t" },
-    { sizeof (intptr_t), ALIGNOF(intptr_t), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_UINTPTR, "uintptr_t" },
-    { sizeof (intmax_t), ALIGNOF(intmax_t), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_INTMAX, "intmax_t" },
-    { sizeof (intmax_t), ALIGNOF(intmax_t), MVM_STORAGE_SPEC_CAN_BOX_INT,
-            MVM_CSCALAR_UINTMAX, "uintmax_t" },
-    { sizeof (float), ALIGNOF(float), MVM_STORAGE_SPEC_CAN_BOX_NUM,
-            MVM_CSCALAR_FLOAT, "float" },
-    { sizeof (double), ALIGNOF(double), MVM_STORAGE_SPEC_CAN_BOX_NUM,
-            MVM_CSCALAR_DOUBLE, "double" },
-    { sizeof (long double), ALIGNOF(long double), MVM_STORAGE_SPEC_CAN_BOX_NUM,
-            MVM_CSCALAR_LDOUBLE, "long double" },
-    { sizeof (void *), ALIGNOF(void *), 0, MVM_CSCALAR_PTR, "void *" },
-    { sizeof (func *), ALIGNOF(func *), 0, MVM_CSCALAR_FPTR, "void (*)(void)" },
+    { 0, 0, 0, MVM_CSCALAR_VOID, "void", fetch_void, store_void },
+    INIT_SPEC(char, CHAR, signed char, INT),
+    INIT_SPEC(uchar, UCHAR, unsigned char, INT),
+    INIT_SPEC(short, SHORT, short, INT),
+    INIT_SPEC(ushort, USHORT, unsigned short, INT),
+    INIT_SPEC(int, INT, int, INT),
+    INIT_SPEC(uint, UINT, unsigned int, INT),
+    INIT_SPEC(long, LONG, long, INT),
+    INIT_SPEC(ulong, ULONG, unsigned long, INT),
+    INIT_SPEC(llong, LLONG, long long, INT),
+    INIT_SPEC(ullong, ULLONG, unsigned long long, INT),
+    INIT_SPEC(int8, INT8, int8_t, INT),
+    INIT_SPEC(uint8, UINT8, uint8_t, INT),
+    INIT_SPEC(int16, INT16, int16_t, INT),
+    INIT_SPEC(uint16, UINT16, uint16_t, INT),
+    INIT_SPEC(int32, INT32, int32_t, INT),
+    INIT_SPEC(uint32, UINT32, uint32_t, INT),
+    INIT_SPEC(int64, INT64, int64_t, INT),
+    INIT_SPEC(uint64, UINT64, uint64_t, INT),
+    INIT_SPEC(intptr, INTPTR, intptr_t, INT),
+    INIT_SPEC(uintptr, UINTPTR, uintptr_t, INT),
+    INIT_SPEC(intmax, INTMAX, intmax_t, INT),
+    INIT_SPEC(uintmax, UINTMAX, uintmax_t, INT),
+    INIT_SPEC(float, FLOAT, float, NUM),
+    INIT_SPEC(double, DOUBLE, double, NUM),
+    INIT_SPEC(ldouble, LDOUBLE, long double, NUM),
+    { sizeof (void *), ALIGNOF(void *), 0, MVM_CSCALAR_PTR, "void *",
+            fetch_ptr, store_ptr },
+    { sizeof (func *), ALIGNOF(func *), 0, MVM_CSCALAR_FPTR, "void (*)(void)",
+            fetch_fptr, store_fptr },
 };
 
 static MVMREPROps this_repr;
@@ -184,279 +268,16 @@ static const MVMCScalarSpec * get_spec_checked(MVMThreadContext *tc,
 static void fetch(MVMThreadContext *tc, MVMObject *cont, MVMRegister *res) {
     const MVMCScalarSpec *spec = get_spec_checked(tc, cont);
     void *ptr = ((MVMPtr *)cont)->body.cobj;
-    MVMuint16 id = spec->id;
-    union { intmax_t i; uintmax_t u; long double n; void *p; } value;
-    MVMREPROps *repr;
-    MVMObject *type, *box;
 
     if (!ptr)
         MVM_exception_throw_adhoc(tc, "cannot fetch from null CScalar");
 
-    switch (id) {
-        case MVM_CSCALAR_VOID:
-            MVM_exception_throw_adhoc(tc,
-                    "cannot fetch from CScalar of type void");
-            break;
-
-        case MVM_CSCALAR_CHAR:
-            value.i = *(signed char *)ptr;
-            goto box_i;
-
-        case MVM_CSCALAR_UCHAR:
-            value.u = *(unsigned char *)ptr;
-            goto box_u;
-
-        case MVM_CSCALAR_SHORT:
-            value.i = *(short *)ptr;
-            goto box_i;
-
-        case MVM_CSCALAR_USHORT:
-            value.u = *(unsigned short *)ptr;
-            goto box_u;
-
-        case MVM_CSCALAR_INT:
-            value.i = *(int *)ptr;
-            goto box_i;
-
-        case MVM_CSCALAR_UINT:
-            value.u = *(unsigned int *)ptr;
-            goto box_u;
-
-        case MVM_CSCALAR_LONG:
-            value.i = *(long *)ptr;
-            goto box_i;
-
-        case MVM_CSCALAR_ULONG:
-            value.u = *(unsigned long *)ptr;
-            goto box_u;
-
-        case MVM_CSCALAR_LLONG:
-            value.i = *(long long *)ptr;
-            goto box_i;
-
-        case MVM_CSCALAR_ULLONG:
-            value.u = *(unsigned long long *)ptr;
-            goto box_u;
-
-        case MVM_CSCALAR_INT8:
-            value.i = *(int8_t *)ptr;
-            goto box_i;
-
-        case MVM_CSCALAR_UINT8:
-            value.u = *(uint8_t *)ptr;
-            goto box_u;
-
-        case MVM_CSCALAR_INT16: {
-            value.i = *(int16_t *)ptr;
-            goto box_i;
-        }
-
-        case MVM_CSCALAR_UINT16:
-            value.u = *(uint16_t *)ptr;
-            goto box_u;
-
-        case MVM_CSCALAR_INT32:
-            value.i = *(int32_t *)ptr;
-            goto box_i;
-
-        case MVM_CSCALAR_UINT32:
-            value.u = *(uint32_t *)ptr;
-            goto box_u;
-
-        case MVM_CSCALAR_INT64:
-            value.i = *(int64_t *)ptr;
-            goto box_i;
-
-        case MVM_CSCALAR_UINT64:
-            value.u = *(uint64_t *)ptr;
-            goto box_u;
-
-        case MVM_CSCALAR_INTPTR:
-            value.i = *(intptr_t *)ptr;
-            goto box_i;
-
-        case MVM_CSCALAR_UINTPTR:
-            value.u = *(uintptr_t *)ptr;
-            goto box_u;
-
-        case MVM_CSCALAR_INTMAX:
-            value.i = *(intmax_t *)ptr;
-            goto box_i;
-
-        case MVM_CSCALAR_UINTMAX:
-            value.u = *(uintmax_t *)ptr;
-            goto box_u;
-
-        case MVM_CSCALAR_FLOAT:
-            value.n = *(float *)ptr;
-            goto box_n;
-
-        case MVM_CSCALAR_DOUBLE:
-            value.n = *(double *)ptr;
-            goto box_n;
-
-        case MVM_CSCALAR_LDOUBLE:
-            value.n = *(long double *)ptr;
-            goto box_n;
-
-        case MVM_CSCALAR_PTR:
-            value.p = *(void **)ptr;
-            goto box_p;
-
-        case MVM_CSCALAR_FPTR:
-            MVM_exception_throw_adhoc(tc, "TODO");
-
-        default:
-            MVM_exception_throw_adhoc(tc, "invalid CScalar id %" PRIu16, id);
-    }
-
-box_i:
-box_u:
-    repr = MVM_repr_get_by_id(tc, MVM_REPR_ID_P6int);
-    type = repr->type_object_for(tc, NULL);
-    box  = MVM_repr_alloc_init(tc, type);
-    MVM_repr_set_int(tc, box, value.i);
-    res->o = box;
-    return;
-
-box_n:
-    repr = MVM_repr_get_by_id(tc, MVM_REPR_ID_P6num);
-    type = repr->type_object_for(tc, NULL);
-    box  = MVM_repr_alloc_init(tc, type);
-    MVM_repr_set_num(tc, box, value.n);
-    res->o = box;
-    return;
-
-box_p:
-    type = tc->instance->VMPtr_WHAT;
-    MVMROOT(tc, cont, {
-        box = MVM_repr_alloc_init(tc, type);
-        ((MVMPtr *)box)->body.cobj = ptr;
-        ((MVMPtr *)box)->body.blob = ((MVMPtr *)cont)->body.blob;
-    });
-    res->o = box;
-    return;
-}
-
-static void do_store(MVMThreadContext *tc, MVMuint16 id, void *ptr,
-        MVMObject *obj) {
-    switch (id) {
-        case MVM_CSCALAR_VOID:
-            MVM_exception_throw_adhoc(tc,
-                    "cannot store into CScalar of type void");
-            break;
-
-        case MVM_CSCALAR_CHAR:
-            *(signed char *)ptr = (signed char)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_UCHAR:
-            *(unsigned char *)ptr = (unsigned char)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_SHORT:
-            *(short *)ptr = (short)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_USHORT:
-            *(unsigned short *)ptr = (unsigned short)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_INT:
-            *(int *)ptr = (int)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_UINT:
-            *(unsigned int *)ptr = (unsigned int)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_LONG:
-            *(long *)ptr = (long)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_ULONG:
-            *(unsigned long *)ptr = (unsigned long)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_LLONG:
-            *(long long *)ptr = (long long)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_ULLONG:
-            *(unsigned long long *)ptr = (unsigned long long)MVM_repr_get_int(
-                    tc, obj);
-            break;
-
-        case MVM_CSCALAR_INT8:
-            *(int8_t *)ptr = (int8_t)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_UINT8:
-            *(uint8_t *)ptr = (uint8_t)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_INT16:
-            *(int16_t *)ptr = (int16_t)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_UINT16:
-            *(uint16_t *)ptr = (uint16_t)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_INT32:
-            *(int32_t *)ptr = (int32_t)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_UINT32:
-            *(uint32_t *)ptr = (uint32_t)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_INT64:
-            *(int64_t *)ptr = (int64_t)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_UINT64:
-            *(uint64_t *)ptr = (uint64_t)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_INTPTR:
-            *(intptr_t *)ptr = (intptr_t)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_UINTPTR:
-            *(uintptr_t *)ptr = (uintptr_t)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_INTMAX:
-            *(intmax_t *)ptr = (intmax_t)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_UINTMAX:
-            *(uintmax_t *)ptr = (uintmax_t)MVM_repr_get_int(tc, obj);
-            break;
-
-        case MVM_CSCALAR_FLOAT:
-            *(float *)ptr = (float)MVM_repr_get_num(tc, obj);
-            break;
-
-        case MVM_CSCALAR_DOUBLE:
-            *(double *)ptr = (double)MVM_repr_get_num(tc, obj);
-            break;
-
-        case MVM_CSCALAR_LDOUBLE:
-            *(long double *)ptr = (long double)MVM_repr_get_num(tc, obj);
-            break;
-
-        case MVM_CSCALAR_PTR:
-            *(void **)ptr = ((MVMPtr *)obj)->body.cobj;
-            break;
-
-        case MVM_CSCALAR_FPTR:
-            MVM_exception_throw_adhoc(tc, "TODO");
-
-        default:
-            MVM_exception_throw_adhoc(tc, "invalid CScalar id %" PRIu16, id);
-    }
+    if (spec->id == MVM_CSCALAR_PTR)
+        MVMROOT(tc, cont, {
+            res->o = spec->fetch(tc, ptr);
+            ((MVMPtr *)res->o)->body.blob = ((MVMPtr *)cont)->body.blob;
+        });
+    else res->o = spec->fetch(tc, ptr);
 }
 
 static void store_unchecked(MVMThreadContext *tc, MVMObject *cont,
@@ -464,7 +285,7 @@ static void store_unchecked(MVMThreadContext *tc, MVMObject *cont,
     const MVMCScalarSpec *spec = STABLE(cont)->REPR_data;
     void *ptr = ((MVMPtr *)cont)->body.cobj;
 
-    do_store(tc, spec->id, ptr, obj);
+    spec->store(tc, ptr, obj);
 }
 
 static void store(MVMThreadContext *tc, MVMObject *cont, MVMObject *obj) {
@@ -495,7 +316,7 @@ static void store(MVMThreadContext *tc, MVMObject *cont, MVMObject *obj) {
     if (!ptr)
         MVM_exception_throw_adhoc(tc, "cannot store into null CScalar");
 
-    do_store(tc, scalar_spec->id, ptr, obj);
+    scalar_spec->store(tc, ptr, obj);
 }
 
 static void gc_mark_data(MVMThreadContext *tc, MVMSTable *st,

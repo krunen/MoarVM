@@ -38,6 +38,8 @@ struct MVMCScalarSpec {
     MVMuint16 can_box;
     MVMuint16 id;
     const char *cname;
+    MVMObject * (*fetch)(MVMThreadContext *, void *);
+    void (*store)(MVMThreadContext *, void *, MVMObject *);
 };
 
 /* VMBlob */
